@@ -74,7 +74,7 @@ async function canAccessMGAAffiliatedBook(brokerAgencyId, mgaId) {
     const relationship = relationships[0];
     
     // Relationship must be active
-    if (relationship.relationship_status !== 'active') {
+    if (relationship.status !== 'active') {
       return false;
     }
 
@@ -151,7 +151,7 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
       try {
         await base44.entities.AuditEvent.create({
           action: 'BROKER_WORKSPACE_ACCESS_EVALUATED',
-          actor_email: user.email,
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'initiated',
         });
@@ -180,11 +180,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
       // Cross-tenant or invalid scope - masked 404
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_INVALID_ROLE',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_INVALID_ROLE',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Invalid BrokerAgencyUser role',
+          event_detail: 'Invalid BrokerAgencyUser role',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -207,11 +207,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
       // Invalid scope - masked 404
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_SCOPE',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_SCOPE',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Broker agency profile not found',
+          event_detail: 'Broker agency profile not found',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -231,11 +231,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     if (brokerProfile.onboarding_status === 'not_started') {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Onboarding not started',
+          event_detail: 'Onboarding not started',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -253,11 +253,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     if (brokerProfile.onboarding_status === 'in_progress') {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Onboarding profile incomplete',
+          event_detail: 'Onboarding profile incomplete',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -275,11 +275,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     if (brokerProfile.onboarding_status === 'pending_compliance') {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Awaiting compliance documents',
+          event_detail: 'Awaiting compliance documents',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -297,11 +297,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     if (brokerProfile.onboarding_status === 'pending_review') {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Pending platform review',
+          event_detail: 'Pending platform review',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -319,11 +319,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     if (brokerProfile.onboarding_status === 'pending_more_information') {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Pending additional information from applicant',
+          event_detail: 'Pending additional information from applicant',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -341,11 +341,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     if (brokerProfile.onboarding_status === 'rejected') {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_PENDING_REVIEW',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Application rejected',
+          event_detail: 'Application rejected',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -363,11 +363,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     if (brokerProfile.onboarding_status === 'suspended') {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_SUSPENDED',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_SUSPENDED',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Account suspended',
+          event_detail: 'Account suspended',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -409,7 +409,7 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
 
     const relationship = relationships[0];
 
-    if (relationship.relationship_status !== 'active') {
+    if (relationship.status !== 'active') {
       return {
         eligible: false,
         reason: 'RELATIONSHIP_NOT_ACTIVE',
@@ -433,11 +433,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     if (brokerProfile.compliance_status === 'compliance_hold') {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_COMPLIANCE_HOLD',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_COMPLIANCE_HOLD',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
-          detail: 'Active compliance hold',
+          event_detail: 'Active compliance hold',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -458,11 +458,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
       // State 10: APPROVED_BUT_WORKSPACE_DISABLED (when flag is false)
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_ELIGIBLE_PENDING_ACTIVATION',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_ELIGIBLE_PENDING_ACTIVATION',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'eligible_but_disabled',
-          detail: 'Approved but workspace flag disabled',
+          event_detail: 'Approved but workspace flag disabled',
         });
       } catch (auditError) {
         console.error('Audit log error:', auditError);
@@ -480,11 +480,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     // State 12: ACTIVE (only reachable after workspace activation approval)
     try {
       await base44.entities.AuditEvent.create({
-        action: 'BROKER_WORKSPACE_ACCESS_ELIGIBLE_PENDING_ACTIVATION',
-        actor_email: user.email,
+        event_type: 'BROKER_WORKSPACE_ACCESS_ELIGIBLE_PENDING_ACTIVATION',
+        actor_id: user.email,
         broker_agency_id: brokerAgencyId,
         outcome: 'eligible_active',
-        detail: 'Workspace activated and eligible',
+        event_detail: 'Workspace activated and eligible',
       });
     } catch (auditError) {
       console.error('Audit log error:', auditError);
@@ -502,11 +502,11 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
       const user = await base44.auth.me();
       if (user) {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_DENIED_SCOPE',
-          actor_email: user.email,
+          event_type: 'BROKER_WORKSPACE_ACCESS_DENIED_SCOPE',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'error',
-          detail: `Evaluation error: ${error.message}`,
+          event_detail: `Evaluation error: ${error.message}`,
         });
       }
     } catch (auditError) {
@@ -543,11 +543,11 @@ export async function getBrokerDashboard(brokerAgencyId, requestingMgaId = null)
     }
 
     // Get direct book counts
-    const directEmployers = await base44.entities.BrokerEmployer.filter({
+    const directEmployers = await base44.entities.EmployerGroup.filter({
       broker_agency_id: brokerAgencyId,
       master_general_agent_id: null,
     });
-    const directCases = await base44.entities.BrokerCase.filter({
+    const directCases = await base44.entities.BenefitCase.filter({
       broker_agency_id: brokerAgencyId,
       master_general_agent_id: null,
     });
@@ -574,11 +574,11 @@ export async function getBrokerDashboard(brokerAgencyId, requestingMgaId = null)
 
     if (mgaRelationships && mgaRelationships.length > 0) {
       const mgaIds = mgaRelationships.map(r => r.master_general_agent_id);
-      const mgaEmployers = await base44.entities.BrokerEmployer.filter({
+      const mgaEmployers = await base44.entities.EmployerGroup.filter({
         broker_agency_id: brokerAgencyId,
         master_general_agent_id: { $in: mgaIds },
       });
-      const mgaCases = await base44.entities.BrokerCase.filter({
+      const mgaCases = await base44.entities.BenefitCase.filter({
         broker_agency_id: brokerAgencyId,
         master_general_agent_id: { $in: mgaIds },
       });
@@ -600,8 +600,8 @@ export async function getBrokerDashboard(brokerAgencyId, requestingMgaId = null)
 
     try {
       await base44.entities.AuditEvent.create({
-        action: 'BROKER_DASHBOARD_VIEWED',
-        actor_email: user.email,
+        event_type: 'BROKER_DASHBOARD_VIEWED',
+        actor_id: user.email,
         broker_agency_id: brokerAgencyId,
         master_general_agent_id: requestingMgaId,
         outcome: 'success',
@@ -667,8 +667,8 @@ export async function listBrokerBookOfBusiness(brokerAgencyId, requestingMgaId =
     if (!accessState.eligible) {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_BOOK_ACCESS_DENIED_SCOPE',
-          actor_email: user.email,
+          event_type: 'BROKER_BOOK_ACCESS_DENIED_SCOPE',
+          actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           master_general_agent_id: requestingMgaId,
           outcome: 'blocked',
@@ -684,11 +684,11 @@ export async function listBrokerBookOfBusiness(brokerAgencyId, requestingMgaId =
     }
 
     // Get broker's employers and cases for direct book
-    const directEmployers = await base44.entities.BrokerEmployer.filter({
+    const directEmployers = await base44.entities.EmployerGroup.filter({
       broker_agency_id: brokerAgencyId,
       master_general_agent_id: null, // Direct book only
     });
-    const directCases = await base44.entities.BrokerCase.filter({
+    const directCases = await base44.entities.BenefitCase.filter({
       broker_agency_id: brokerAgencyId,
       master_general_agent_id: null, // Direct book only
     });
@@ -733,18 +733,18 @@ export async function listBrokerBookOfBusiness(brokerAgencyId, requestingMgaId =
     });
 
     if (mgaRelationships && mgaRelationships.length > 0) {
-      const activeRelationships = mgaRelationships.filter(r => r.relationship_status === 'active');
+      const activeRelationships = mgaRelationships.filter(r => r.status === 'active');
 
       if (activeRelationships.length > 0) {
         mgaAffiliatedBook.accessible = true;
         mgaAffiliatedBook.mga_relationships_count = activeRelationships.length;
 
         // Get MGA-Affiliated employers and cases
-        const mgaEmployers = await base44.entities.BrokerEmployer.filter({
+        const mgaEmployers = await base44.entities.EmployerGroup.filter({
           broker_agency_id: brokerAgencyId,
           master_general_agent_id: { $in: activeRelationships.map(r => r.master_general_agent_id) },
         });
-        const mgaCases = await base44.entities.BrokerCase.filter({
+        const mgaCases = await base44.entities.BenefitCase.filter({
           broker_agency_id: brokerAgencyId,
           master_general_agent_id: { $in: activeRelationships.map(r => r.master_general_agent_id) },
         });
@@ -773,12 +773,12 @@ export async function listBrokerBookOfBusiness(brokerAgencyId, requestingMgaId =
 
     try {
       await base44.entities.AuditEvent.create({
-        action: 'BROKER_BOOK_CLASSIFICATION_EVALUATED',
-        actor_email: user.email,
+        event_type: 'BROKER_BOOK_CLASSIFICATION_EVALUATED',
+        actor_id: user.email,
         broker_agency_id: brokerAgencyId,
         master_general_agent_id: requestingMgaId,
         outcome: 'success',
-        detail: `Direct book: ${directBook.employer_count} employers, ${directBook.case_count} cases. MGA-Affiliated: ${mgaAffiliatedBook.employer_count} employers, ${mgaAffiliatedBook.case_count} cases.`,
+        event_detail: `Direct book: ${directBook.employer_count} employers, ${directBook.case_count} cases. MGA-Affiliated: ${mgaAffiliatedBook.employer_count} employers, ${mgaAffiliatedBook.case_count} cases.`,
       });
     } catch (auditError) {
       console.error('Audit log error:', auditError);
@@ -815,8 +815,8 @@ export async function listBrokerEmployers(brokerAgencyId, requestingMgaId = null
     if (!accessState.eligible) {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_BOOK_ACCESS_DENIED_SCOPE',
-          actor_email: user?.email,
+          event_type: 'BROKER_BOOK_ACCESS_DENIED_SCOPE',
+          actor_id: user?.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
         });
@@ -830,7 +830,7 @@ export async function listBrokerEmployers(brokerAgencyId, requestingMgaId = null
       };
     }
 
-    const directEmployers = await base44.entities.BrokerEmployer.filter({
+    const directEmployers = await base44.entities.EmployerGroup.filter({
       broker_agency_id: brokerAgencyId,
       master_general_agent_id: null,
     });
@@ -843,7 +843,7 @@ export async function listBrokerEmployers(brokerAgencyId, requestingMgaId = null
     let mgaEmployers = [];
     if (mgaRelationships && mgaRelationships.length > 0) {
       const mgaIds = mgaRelationships.map(r => r.master_general_agent_id);
-      mgaEmployers = await base44.entities.BrokerEmployer.filter({
+      mgaEmployers = await base44.entities.EmployerGroup.filter({
         broker_agency_id: brokerAgencyId,
         master_general_agent_id: { $in: mgaIds },
       });
@@ -851,11 +851,11 @@ export async function listBrokerEmployers(brokerAgencyId, requestingMgaId = null
 
     try {
       await base44.entities.AuditEvent.create({
-        action: 'BROKER_EMPLOYERS_LISTED',
-        actor_email: user?.email,
+        event_type: 'BROKER_EMPLOYERS_LISTED',
+        actor_id: user?.email,
         broker_agency_id: brokerAgencyId,
         outcome: 'success',
-        detail: `Direct book: ${directEmployers ? directEmployers.length : 0}, MGA-Affiliated: ${mgaEmployers ? mgaEmployers.length : 0}`,
+        event_detail: `Direct book: ${directEmployers ? directEmployers.length : 0}, MGA-Affiliated: ${mgaEmployers ? mgaEmployers.length : 0}`,
       });
     } catch (auditError) {
       console.error('Audit log error:', auditError);
@@ -914,8 +914,8 @@ export async function listBrokerCases(brokerAgencyId, requestingMgaId = null) {
     if (!accessState.eligible) {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_BOOK_ACCESS_DENIED_SCOPE',
-          actor_email: user?.email,
+          event_type: 'BROKER_BOOK_ACCESS_DENIED_SCOPE',
+          actor_id: user?.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'blocked',
         });
@@ -929,7 +929,7 @@ export async function listBrokerCases(brokerAgencyId, requestingMgaId = null) {
       };
     }
 
-    const directCases = await base44.entities.BrokerCase.filter({
+    const directCases = await base44.entities.BenefitCase.filter({
       broker_agency_id: brokerAgencyId,
       master_general_agent_id: null,
     });
@@ -942,7 +942,7 @@ export async function listBrokerCases(brokerAgencyId, requestingMgaId = null) {
     let mgaCases = [];
     if (mgaRelationships && mgaRelationships.length > 0) {
       const mgaIds = mgaRelationships.map(r => r.master_general_agent_id);
-      mgaCases = await base44.entities.BrokerCase.filter({
+      mgaCases = await base44.entities.BenefitCase.filter({
         broker_agency_id: brokerAgencyId,
         master_general_agent_id: { $in: mgaIds },
       });
@@ -950,11 +950,11 @@ export async function listBrokerCases(brokerAgencyId, requestingMgaId = null) {
 
     try {
       await base44.entities.AuditEvent.create({
-        action: 'BROKER_CASES_LISTED',
-        actor_email: user?.email,
+        event_type: 'BROKER_CASES_LISTED',
+        actor_id: user?.email,
         broker_agency_id: brokerAgencyId,
         outcome: 'success',
-        detail: `Direct book: ${directCases ? directCases.length : 0}, MGA-Affiliated: ${mgaCases ? mgaCases.length : 0}`,
+        event_detail: `Direct book: ${directCases ? directCases.length : 0}, MGA-Affiliated: ${mgaCases ? mgaCases.length : 0}`,
       });
     } catch (auditError) {
       console.error('Audit log error:', auditError);
@@ -1021,7 +1021,7 @@ export async function listBrokerCensusVersions(brokerAgencyId) {
     }
 
     // Get broker cases to filter census versions
-    const cases = await base44.entities.BrokerCase.filter({
+    const cases = await base44.entities.BenefitCase.filter({
       broker_agency_id: brokerAgencyId,
     });
 
@@ -1084,7 +1084,7 @@ export async function listBrokerQuotes(brokerAgencyId, requestingMgaId = null) {
       };
     }
 
-    const directCases = await base44.entities.BrokerCase.filter({
+    const directCases = await base44.entities.BenefitCase.filter({
       broker_agency_id: brokerAgencyId,
       master_general_agent_id: null,
     });
@@ -1097,7 +1097,7 @@ export async function listBrokerQuotes(brokerAgencyId, requestingMgaId = null) {
     let mgaCases = [];
     if (mgaRelationships && mgaRelationships.length > 0) {
       const mgaIds = mgaRelationships.map(r => r.master_general_agent_id);
-      mgaCases = await base44.entities.BrokerCase.filter({
+      mgaCases = await base44.entities.BenefitCase.filter({
         broker_agency_id: brokerAgencyId,
         master_general_agent_id: { $in: mgaIds },
       });
@@ -1118,11 +1118,11 @@ export async function listBrokerQuotes(brokerAgencyId, requestingMgaId = null) {
 
     try {
       await base44.entities.AuditEvent.create({
-        action: 'BROKER_QUOTES_LISTED',
-        actor_email: user?.email,
+        event_type: 'BROKER_QUOTES_LISTED',
+        actor_id: user?.email,
         broker_agency_id: brokerAgencyId,
         outcome: 'success',
-        detail: `Direct book: ${directQuotes ? directQuotes.length : 0}, MGA-Affiliated: ${mgaQuotes ? mgaQuotes.length : 0}`,
+        event_detail: `Direct book: ${directQuotes ? directQuotes.length : 0}, MGA-Affiliated: ${mgaQuotes ? mgaQuotes.length : 0}`,
       });
     } catch (auditError) {
       console.error('Audit log error:', auditError);
@@ -1189,7 +1189,7 @@ export async function listBrokerProposals(brokerAgencyId, requestingMgaId = null
       };
     }
 
-    const directCases = await base44.entities.BrokerCase.filter({
+    const directCases = await base44.entities.BenefitCase.filter({
       broker_agency_id: brokerAgencyId,
       master_general_agent_id: null,
     });
@@ -1202,7 +1202,7 @@ export async function listBrokerProposals(brokerAgencyId, requestingMgaId = null
     let mgaCases = [];
     if (mgaRelationships && mgaRelationships.length > 0) {
       const mgaIds = mgaRelationships.map(r => r.master_general_agent_id);
-      mgaCases = await base44.entities.BrokerCase.filter({
+      mgaCases = await base44.entities.BenefitCase.filter({
         broker_agency_id: brokerAgencyId,
         master_general_agent_id: { $in: mgaIds },
       });
@@ -1223,11 +1223,11 @@ export async function listBrokerProposals(brokerAgencyId, requestingMgaId = null
 
     try {
       await base44.entities.AuditEvent.create({
-        action: 'BROKER_PROPOSALS_LISTED',
-        actor_email: user?.email,
+        event_type: 'BROKER_PROPOSALS_LISTED',
+        actor_id: user?.email,
         broker_agency_id: brokerAgencyId,
         outcome: 'success',
-        detail: `Direct book: ${directProposals ? directProposals.length : 0}, MGA-Affiliated: ${mgaProposals ? mgaProposals.length : 0}`,
+        event_detail: `Direct book: ${directProposals ? directProposals.length : 0}, MGA-Affiliated: ${mgaProposals ? mgaProposals.length : 0}`,
       });
     } catch (auditError) {
       console.error('Audit log error:', auditError);
@@ -1292,7 +1292,7 @@ export async function listBrokerTasks(brokerAgencyId) {
     }
 
     // Get broker cases to filter tasks
-    const cases = await base44.entities.BrokerCase.filter({
+    const cases = await base44.entities.BenefitCase.filter({
       broker_agency_id: brokerAgencyId,
     });
 
@@ -1353,7 +1353,7 @@ export async function listBrokerDocuments(brokerAgencyId) {
     }
 
     // Get broker cases to filter documents
-    const cases = await base44.entities.BrokerCase.filter({
+    const cases = await base44.entities.BenefitCase.filter({
       broker_agency_id: brokerAgencyId,
     });
 
