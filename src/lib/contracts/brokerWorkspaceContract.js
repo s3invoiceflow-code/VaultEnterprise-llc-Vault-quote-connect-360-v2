@@ -150,7 +150,7 @@ export async function getBrokerWorkspaceAccessState(brokerAgencyId) {
     if (user) {
       try {
         await base44.entities.AuditEvent.create({
-          action: 'BROKER_WORKSPACE_ACCESS_EVALUATED',
+          event_type: 'BROKER_WORKSPACE_ACCESS_EVALUATED',
           actor_id: user.email,
           broker_agency_id: brokerAgencyId,
           outcome: 'initiated',
