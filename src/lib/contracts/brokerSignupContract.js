@@ -108,10 +108,10 @@ function assertScopeAccess(context, resource) {
 async function createAuditEvent(base44, event) {
   const auditEventData = {
     tenant_id: event.tenant_id,
-    actor_user_id: event.actor_user_id,
+    actor_id: event.actor_id || event.actor_user_id,
     actor_role: event.actor_role,
-    action: event.action,
-    detail: event.detail || '',
+    event_type: event.event_type || event.action,
+    event_detail: event.event_detail || event.detail || '',
     entity_type: event.entity_type || 'BrokerAgencyProfile',
     entity_id: event.entity_id || '',
     outcome: event.outcome || 'success',
@@ -280,10 +280,10 @@ export async function submitStandaloneBrokerSignup(base44, payload) {
     // 6. Audit event: BROKER_SIGNUP_SUBMITTED
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: 'system',
+      actor_id: 'system',
       actor_role: 'system',
-      action: 'BROKER_SIGNUP_SUBMITTED',
-      detail: `Standalone broker signup submitted: ${applicant_email}`,
+      event_type: 'BROKER_SIGNUP_SUBMITTED',
+      event_detail: `Standalone broker signup submitted: ${applicant_email}`,
       entity_type: 'BrokerAgencyProfile',
       entity_id: brokerProfile.id,
       outcome: 'success',
@@ -300,10 +300,10 @@ export async function submitStandaloneBrokerSignup(base44, payload) {
     // Audit failure
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: 'system',
+      actor_id: 'system',
       actor_role: 'system',
-      action: 'BROKER_SIGNUP_SUBMITTED',
-      detail: `Signup failed: ${error.message}`,
+      event_type: 'BROKER_SIGNUP_SUBMITTED',
+      event_detail: `Signup failed: ${error.message}`,
       outcome: 'failed',
       audit_trace_id: auditTraceId,
     });
@@ -349,10 +349,10 @@ export async function validateBrokerSignupToken(base44, payload) {
       // Audit: TOKEN_VALIDATED (blocked - invalid)
       await createAuditEvent(base44, {
         tenant_id,
-        actor_user_id: 'anonymous',
+        actor_id: 'anonymous',
         actor_role: 'applicant',
-        action: 'TOKEN_VALIDATED',
-        detail: 'Invalid token',
+        event_type: 'TOKEN_VALIDATED',
+        event_detail: 'Invalid token',
         outcome: 'blocked',
         audit_trace_id: auditTraceId,
       });
@@ -370,10 +370,10 @@ export async function validateBrokerSignupToken(base44, payload) {
       // Audit: TOKEN_EXPIRED_DENIED
       await createAuditEvent(base44, {
         tenant_id,
-        actor_user_id: 'anonymous',
+        actor_id: 'anonymous',
         actor_role: 'applicant',
-        action: 'TOKEN_EXPIRED_DENIED',
-        detail: 'Token has expired',
+        event_type: 'TOKEN_EXPIRED_DENIED',
+        event_detail: 'Token has expired',
         outcome: 'blocked',
         audit_trace_id: auditTraceId,
       });
@@ -389,10 +389,10 @@ export async function validateBrokerSignupToken(base44, payload) {
       // Audit: TOKEN_REPLAY_DENIED
       await createAuditEvent(base44, {
         tenant_id,
-        actor_user_id: 'anonymous',
+        actor_id: 'anonymous',
         actor_role: 'applicant',
-        action: 'TOKEN_REPLAY_DENIED',
-        detail: 'Token already used',
+        event_type: 'TOKEN_REPLAY_DENIED',
+        event_detail: 'Token already used',
         outcome: 'blocked',
         audit_trace_id: auditTraceId,
       });
@@ -412,10 +412,10 @@ export async function validateBrokerSignupToken(base44, payload) {
     // 5. Audit: TOKEN_VALIDATED (success)
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: 'anonymous',
+      actor_id: 'anonymous',
       actor_role: 'applicant',
-      action: 'TOKEN_VALIDATED',
-      detail: 'Token validated successfully',
+      event_type: 'TOKEN_VALIDATED',
+      event_detail: 'Token validated successfully',
       outcome: 'success',
       audit_trace_id: auditTraceId,
     });
@@ -494,10 +494,10 @@ export async function completeBrokerOnboardingProfile(base44, payload) {
     // Audit: BROKER_PROFILE_COMPLETED
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: 'applicant',
+      actor_id: 'applicant',
       actor_role: 'applicant',
-      action: 'BROKER_PROFILE_COMPLETED',
-      detail: `Profile completed for broker: ${profileData.legal_name || broker_agency_id}`,
+      event_type: 'BROKER_PROFILE_COMPLETED',
+      event_detail: `Profile completed for broker: ${profileData.legal_name || broker_agency_id}`,
       entity_type: 'BrokerAgencyProfile',
       entity_id: broker_agency_id,
       outcome: 'success',
@@ -556,10 +556,10 @@ export async function uploadBrokerComplianceDocument(base44, payload) {
     // Audit: BROKER_COMPLIANCE_DOCUMENT_UPLOADED
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: 'applicant',
+      actor_id: 'applicant',
       actor_role: 'applicant',
-      action: 'BROKER_COMPLIANCE_DOCUMENT_UPLOADED',
-      detail: `Compliance document uploaded: ${document_type}`,
+      event_type: 'BROKER_COMPLIANCE_DOCUMENT_UPLOADED',
+      event_detail: `Compliance document uploaded: ${document_type}`,
       entity_type: 'BrokerComplianceDocument',
       entity_id: doc.id,
       outcome: 'success',
@@ -667,10 +667,10 @@ export async function cancelBrokerSignup(base44, payload) {
     // Audit: BROKER_SIGNUP_CANCELLED
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: 'applicant',
+      actor_id: 'applicant',
       actor_role: 'applicant',
-      action: 'BROKER_SIGNUP_CANCELLED',
-      detail: 'Signup cancelled by applicant',
+      event_type: 'BROKER_SIGNUP_CANCELLED',
+      event_detail: 'Signup cancelled by applicant',
       entity_type: 'BrokerAgencyProfile',
       entity_id: broker_agency_id,
       outcome: 'success',
@@ -748,10 +748,10 @@ export async function approveStandaloneBroker(base44, context, payload) {
     // Audit: BROKER_PLATFORM_RELATIONSHIP_APPROVED
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: context.user_id,
+      actor_id: context.user_id,
       actor_role: context.role,
-      action: 'BROKER_PLATFORM_RELATIONSHIP_APPROVED',
-      detail: `Broker approved: ${broker_agency_id}`,
+      event_type: 'BROKER_PLATFORM_RELATIONSHIP_APPROVED',
+      event_detail: `Broker approved: ${broker_agency_id}`,
       entity_type: 'BrokerPlatformRelationship',
       entity_id: relationships[0]?.id || broker_agency_id,
       outcome: 'success',
@@ -820,10 +820,10 @@ export async function rejectStandaloneBroker(base44, context, payload) {
     // Audit: BROKER_PLATFORM_RELATIONSHIP_REJECTED
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: context.user_id,
+      actor_id: context.user_id,
       actor_role: context.role,
-      action: 'BROKER_PLATFORM_RELATIONSHIP_REJECTED',
-      detail: `Broker rejected: ${reason || 'No reason provided'}`,
+      event_type: 'BROKER_PLATFORM_RELATIONSHIP_REJECTED',
+      event_detail: `Broker rejected: ${reason || 'No reason provided'}`,
       entity_type: 'BrokerPlatformRelationship',
       entity_id: relationships[0]?.id || broker_agency_id,
       outcome: 'success',
@@ -882,10 +882,10 @@ export async function requestBrokerMoreInformation(base44, context, payload) {
     // Audit: BROKER_MORE_INFORMATION_REQUESTED
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: context.user_id,
+      actor_id: context.user_id,
       actor_role: context.role,
-      action: 'BROKER_MORE_INFORMATION_REQUESTED',
-      detail: `More information requested: ${information_requested}`,
+      event_type: 'BROKER_MORE_INFORMATION_REQUESTED',
+      event_detail: `More information requested: ${information_requested}`,
       entity_type: 'BrokerAgencyOnboardingCase',
       entity_id: cases[0]?.id || broker_agency_id,
       outcome: 'success',

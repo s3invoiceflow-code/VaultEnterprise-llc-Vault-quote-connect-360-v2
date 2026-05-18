@@ -90,10 +90,10 @@ function assertScopeAccess(context, tenant_id) {
 async function createAuditEvent(base44, event) {
   const auditEventData = {
     tenant_id: event.tenant_id,
-    actor_user_id: event.actor_user_id || 'system',
+    actor_id: event.actor_id || event.actor_user_id || 'system',
     actor_role: event.actor_role || 'system',
-    action: event.action,
-    detail: event.detail || '',
+    event_type: event.event_type || event.action,
+    event_detail: event.event_detail || event.detail || '',
     entity_type: event.entity_type || 'BrokerAgencyProfile',
     entity_id: event.entity_id || '',
     outcome: event.outcome || 'success',
@@ -242,10 +242,10 @@ export async function evaluateBrokerPortalAccess(base44, context, payload) {
 
     await createAuditEvent(base44, {
       tenant_id,
-      actor_user_id: user_id || 'anonymous',
+      actor_id: user_id || 'anonymous',
       actor_role: context.role || 'applicant',
-      action: auditAction,
-      detail: `Portal access evaluation: ${accessState} (${conditionsMet}/${totalConditions} conditions met)`,
+      event_type: auditAction,
+      event_detail: `Portal access evaluation: ${accessState} (${conditionsMet}/${totalConditions} conditions met)`,
       entity_type: 'BrokerAgencyProfile',
       entity_id: broker_agency_id,
       outcome: 'success',
