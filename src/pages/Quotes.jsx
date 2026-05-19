@@ -219,12 +219,12 @@ export default function Quotes() {
     const missingPlans = scenarios.filter((scenario) => !Number(scenario.plan_count || 0)).length;
     const blockedEnrollment = scenarios.filter((scenario) => {
       const readiness = buildQuoteReadiness({ scenario, caseRecord: caseMap[scenario.case_id], censusVersions, enrollments, renewals });
-      return scenario.status === "approved" && !readiness.checks.enrollmentCompatible;
+      return scenario.approval_status === "approved" && !readiness.checks.enrollmentCompatible;
     }).length;
 
     const blockedRenewal = scenarios.filter((scenario) => {
       const readiness = buildQuoteReadiness({ scenario, caseRecord: caseMap[scenario.case_id], censusVersions, enrollments, renewals });
-      return scenario.status === "approved" && !readiness.checks.renewalCompatible;
+      return scenario.approval_status === "approved" && !readiness.checks.renewalCompatible;
     }).length;
 
     return [
@@ -244,15 +244,24 @@ export default function Quotes() {
     const costPerEmployee = tracedEmployees > 0 ? Math.round(totalPremium / tracedEmployees) : 0;
     const priorQuotes = scenarios.filter((scenario) => Array.isArray(scenario.versions) && scenario.versions.length > 1).length;
 
+    // "Approved" — uses approval_status field (not status); status enum has no "approved" value
+    const approvedCount = scenarios.filter((scenario) => scenario.approval_status === "approved").length;
+    // "Converted" — proxy: completed scenarios whose parent case has enrollment_status open/in_progress/completed
+    const convertedCount = scenarios.filter((scenario) => {
+      if (scenario.status !== "completed") return false;
+      const c = cases.find((item) => item.id === scenario.case_id);
+      return c && ["open", "in_progress", "completed"].includes(c.enrollment_status);
+    }).length;
+
     return [
-      { label: "Total Premium", value: `$${totalPremium.toLocaleString()}`, detail: "Completed monthly scenario premium volume." },
-      { label: "Employer Split", value: `$${totalEmployer.toLocaleString()}`, detail: "Employer monthly contribution across completed quotes." },
-      { label: "Employee Split", value: `$${totalEmployee.toLocaleString()}`, detail: "Employee monthly responsibility across completed quotes." },
-      { label: "Cost / Employee", value: costPerEmployee ? `$${costPerEmployee}` : "—", detail: "Average premium per employee across traced groups." },
-      { label: "Versioned Quotes", value: priorQuotes, detail: "Scenarios with saved historical versions." },
-      { label: "Risk Flags", value: scenarios.filter((scenario) => scenario.status === "error" || scenario.status === "expired").length, detail: "Scenarios requiring remediation or recalculation." },
-      { label: "Approved", value: scenarios.filter((scenario) => scenario.status === "approved").length, detail: "Quotes ready for downstream action." },
-      { label: "Converted", value: scenarios.filter((scenario) => scenario.status === "converted_to_enrollment").length, detail: "Quotes mapped into enrollment execution." },
+      { label: "Total Premium", value: `$${totalPremium.toLocaleString()}`, detail: "Sum of monthly premium across completed scenarios." },
+      { label: "Employer Split", value: `$${totalEmployer.toLocaleString()}`, detail: "Employer monthly contribution across completed scenarios." },
+      { label: "Employee Split", value: `$${totalEmployee.toLocaleString()}`, detail: "Employee monthly responsibility across completed scenarios." },
+      { label: "Cost / Employee", value: costPerEmployee ? `$${costPerEmployee}` : "—", detail: "Total completed premium ÷ employee_count on case records." },
+      { label: "Versioned Quotes", value: priorQuotes, detail: "Scenarios with 2+ saved historical version snapshots." },
+      { label: "Risk Flags", value: scenarios.filter((scenario) => scenario.status === "error" || scenario.status === "expired").length, detail: "Scenarios in error or expired state requiring action." },
+      { label: "Approved", value: approvedCount, detail: "Scenarios with approval_status = approved." },
+      { label: "Converted", value: convertedCount, detail: "Completed scenarios whose case has an active enrollment window." },
     ];
   }, [scenarios, cases]);
 
