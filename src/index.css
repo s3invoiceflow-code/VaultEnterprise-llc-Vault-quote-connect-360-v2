@@ -96,6 +96,25 @@
   }
 }
 
+/* Global overflow protection */
+html, body, #root {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Ensure tables are scrollable on mobile */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Touch target minimum size for mobile */
+@media (max-width: 640px) {
+  button, a, [role="button"] {
+    min-height: 36px;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

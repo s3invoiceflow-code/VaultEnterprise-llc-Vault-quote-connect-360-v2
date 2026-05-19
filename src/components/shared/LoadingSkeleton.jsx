@@ -7,9 +7,9 @@ export function CaseListSkeleton() {
       {Array.from({ length: 5 }, (_, i) => (
         <div key={i} className="flex items-center gap-4 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-sm">
           <Skeleton className="w-10 h-10 rounded-xl flex-shrink-0" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-4 w-48" />
-            <Skeleton className="h-3 w-72" />
+          <div className="flex-1 space-y-2 min-w-0">
+            <Skeleton className="h-4 w-full max-w-[12rem]" />
+            <Skeleton className="h-3 w-full max-w-[18rem]" />
           </div>
           <Skeleton className="h-6 w-24 rounded-full" />
         </div>

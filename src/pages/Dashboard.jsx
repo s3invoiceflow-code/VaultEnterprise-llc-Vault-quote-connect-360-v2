@@ -479,7 +479,7 @@ export default function Dashboard() {
         }}
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <MetricCard label="Active Cases" value={activeCases.length} icon={Briefcase} trendLabel={`${cases.length} total`} />
         <MetricCard label="Quoting Now" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} drafts waiting`} />
         <MetricCard label="Open Enrollments" value={enrollmentOpen.length} icon={ClipboardCheck} trendLabel={`${pendingSignatures} signatures pending`} />

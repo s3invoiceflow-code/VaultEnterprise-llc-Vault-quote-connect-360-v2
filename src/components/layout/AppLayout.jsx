@@ -16,7 +16,7 @@ export default function AppLayout() {
   React.useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
@@ -46,7 +46,7 @@ export default function AppLayout() {
       >
         <TopBar onMobileMenuClick={() => setMobileOpen(true)} />
         <ContextBar />
-        <main className="p-4 md:p-6">
+        <main className="p-4 md:p-6 min-w-0 max-w-full">
           <Outlet />
         </main>
       </div>

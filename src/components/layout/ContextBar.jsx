@@ -17,9 +17,9 @@ export default function ContextBar() {
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Current workspace</p>
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-foreground md:text-base">{current.label}</h2>
-            {current.description && <span className="text-xs text-muted-foreground">• {current.description}</span>}
+          <div className="flex items-center gap-2 min-w-0">
+            <h2 className="text-sm font-semibold text-foreground md:text-base truncate">{current.label}</h2>
+            {current.description && <span className="text-xs text-muted-foreground hidden sm:inline truncate">• {current.description}</span>}
           </div>
         </div>
         <div className="flex flex-wrap gap-2">

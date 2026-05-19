@@ -110,8 +110,8 @@ export default function GlobalSearch({ className }) {
   const showDropdown = open && (results.length > 0 || (recent.length > 0 && !query) || loading);
 
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
-      <div className="relative">
+    <div ref={containerRef} className={cn("relative min-w-0", className)}>
+      <div className="relative w-full">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
         <Input
           ref={inputRef}
@@ -119,7 +119,7 @@ export default function GlobalSearch({ className }) {
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           placeholder="Search… (⌘K)"
-          className="pl-9 pr-8 h-9 w-64 text-sm bg-muted/50 border-0 focus:bg-background focus:border focus:w-80 transition-all"
+          className="pl-9 pr-8 h-9 w-full text-sm bg-muted/50 border-0 focus:bg-background focus:border transition-all"
         />
         {query && (
           <button onClick={() => { setQuery(""); setResults([]); }} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -129,7 +129,7 @@ export default function GlobalSearch({ className }) {
       </div>
 
       {showDropdown && (
-        <div className="absolute top-full mt-2 left-0 w-96 bg-popover border rounded-xl shadow-xl z-50 overflow-hidden">
+        <div className="absolute top-full mt-2 left-0 w-[min(24rem,calc(100vw-2rem))] bg-popover border rounded-xl shadow-xl z-50 overflow-hidden">
           {loading && (
             <div className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
               <div className="w-3 h-3 border border-primary/30 border-t-primary rounded-full animate-spin" />

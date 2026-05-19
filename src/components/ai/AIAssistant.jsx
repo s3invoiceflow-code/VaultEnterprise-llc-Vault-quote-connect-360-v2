@@ -96,7 +96,7 @@ export default function AIAssistant({ caseContext }) {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center justify-center group"
+          className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-50 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center justify-center group"
         >
           <Sparkles className="w-6 h-6 text-white" />
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full border-2 border-background flex items-center justify-center">
@@ -109,8 +109,10 @@ export default function AIAssistant({ caseContext }) {
       {open && (
         <div
           className={cn(
-            "fixed right-6 z-50 bg-card border border-border rounded-2xl shadow-2xl flex flex-col transition-all duration-300",
-            minimized ? "bottom-6 w-72 h-14" : "bottom-6 w-[420px] h-[600px]"
+            "fixed z-50 bg-card border border-border rounded-2xl shadow-2xl flex flex-col transition-all duration-300",
+            minimized
+              ? "bottom-6 right-4 sm:right-6 w-64 sm:w-72 h-14"
+              : "bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-[380px] md:w-[420px] h-[520px] sm:h-[560px] md:h-[600px] max-h-[85vh]"
           )}
         >
           {/* Header */}

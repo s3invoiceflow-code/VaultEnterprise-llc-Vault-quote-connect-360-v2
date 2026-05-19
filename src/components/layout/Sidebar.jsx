@@ -116,7 +116,7 @@ export default function Sidebar({ collapsed, onToggle }) {
     <TooltipProvider>
       <div
         className={cn(
-          "fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border flex flex-col z-40 transition-all duration-300",
+          "fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border flex flex-col z-40 transition-all duration-300 overflow-hidden",
           collapsed ? "w-[68px]" : "w-[240px]"
         )}
       >
@@ -134,7 +134,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         </div>
 
         {/* Main Nav */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-4">
+        <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-4 overscroll-contain">
           {navGroups.map((group, gi) => (
             <div key={group.label}>
               {!collapsed && (
