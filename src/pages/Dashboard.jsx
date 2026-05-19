@@ -454,6 +454,84 @@ export default function Dashboard() {
     );
   }
 
+  const renderAdminView = () => (
+    <>
+      <WorkflowStartPanel />
+      <QuickActions />
+      <SystemControlMetrics metrics={dashboardMetrics} />
+      <SystemHealthStrip
+        metrics={{
+          exceptions: registry.systemSummary.exceptionCount,
+          censusIssues: registry.systemSummary.censusIssues,
+          stalledCases: stalledCasesCount,
+          healthy: healthyDomains,
+        }}
+      />
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <MetricCard label="Active Cases" value={activeCases.length} icon={Briefcase} trendLabel={`${cases.length} total`} />
+        <MetricCard label="Quoting Now" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} drafts waiting`} />
+        <MetricCard label="Open Enrollments" value={enrollmentOpen.length} icon={ClipboardCheck} trendLabel={`${pendingSignatures} signatures pending`} />
+        <MetricCard label="Overdue Tasks" value={overdueTasks.length} icon={AlertCircle} trend={overdueTasks.length > 0 ? "down" : undefined} trendLabel={overdueTasks.length > 0 ? "needs attention" : "on track"} />
+      </div>
+      <ActionCenterPanel actions={actionCenterItems} />
+      <IntegrationStatusPanel items={integrationHealth} />
+      <DomainControlGrid domains={domainCards} />
+      <AlertsAndAuditFeed alerts={activeAlerts} feed={activityFeed} />
+      <RoutedPagesDirectory pages={routedPages} />
+    </>
+  );
+
+  const renderOperationsView = () => (
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <MetricCard label="Active Cases" value={activeCases.length} icon={Briefcase} trendLabel={`${cases.length} total`} />
+        <MetricCard label="Overdue Tasks" value={overdueTasks.length} icon={AlertCircle} trend={overdueTasks.length > 0 ? "down" : undefined} trendLabel={overdueTasks.length > 0 ? "needs attention" : "on track"} />
+        <MetricCard label="Open Exceptions" value={openExceptions} icon={AlertCircle} trend={openExceptions > 0 ? "down" : undefined} trendLabel={openExceptions > 0 ? "needs triage" : "clear"} />
+        <MetricCard label="Stalled Cases" value={stalledCasesCount} icon={RefreshCw} trend={stalledCasesCount > 0 ? "down" : undefined} trendLabel={stalledCasesCount > 0 ? "needs follow-up" : "on track"} />
+      </div>
+      <NextBestActionsPanel actions={nextBestActions} />
+      <TodaysPriorities tasks={tasks} exceptions={exceptions} cases={cases} enrollments={enrollments} />
+      <WorkflowBottlenecksPanel items={bottlenecks} />
+      <CensusGapAlert cases={cases} />
+      <StalledCases cases={cases} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <InteractivePipeline cases={cases} />
+        <EnrollmentCountdowns enrollments={enrollments} />
+      </div>
+    </>
+  );
+
+  const renderBrokerView = () => (
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <MetricCard label="Active Cases" value={activeCases.length} icon={Briefcase} trendLabel={`${cases.length} total`} />
+        <MetricCard label="Quoting Now" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} drafts waiting`} />
+        <MetricCard label="Proposals Out" value={proposalAttention} icon={FileText} trendLabel="awaiting response" />
+        <MetricCard label="Active Renewals" value={activeRenewals} icon={RefreshCw} trendLabel={`${dashboardMetrics.renewalOverdue} overdue`} />
+      </div>
+      <QuickActions />
+      <NextBestActionsPanel actions={nextBestActions} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <InteractivePipeline cases={cases} />
+        <StalledCases cases={cases} />
+      </div>
+      <WorkflowBottlenecksPanel items={bottlenecks} />
+    </>
+  );
+
+  const renderEmployerView = () => (
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <MetricCard label="Open Enrollments" value={enrollmentOpen.length} icon={ClipboardCheck} trendLabel={`${pendingSignatures} signatures pending`} />
+        <MetricCard label="Employees" value={employeeEnrollments.length} icon={Users} trendLabel={`${dashboardMetrics.enrollmentCompletion}% enrolled`} />
+        <MetricCard label="Active Renewals" value={activeRenewals} icon={RefreshCw} trendLabel="renewal pipeline" />
+        <MetricCard label="Proposals" value={proposals.length} icon={FileText} trendLabel={`${proposalAttention} awaiting response`} />
+      </div>
+      <EnrollmentCountdowns enrollments={enrollments} />
+      <TodaysPriorities tasks={tasks} exceptions={exceptions} cases={cases} enrollments={enrollments} />
+    </>
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -464,52 +542,10 @@ export default function Dashboard() {
 
       <DashboardRoleViewTabs value={roleView} onChange={setRoleView} />
 
-      <WorkflowStartPanel />
-
-      <QuickActions />
-
-      <SystemControlMetrics metrics={dashboardMetrics} />
-
-      <SystemHealthStrip
-        metrics={{
-          exceptions: registry.systemSummary.exceptionCount,
-          censusIssues: registry.systemSummary.censusIssues,
-          stalledCases: stalledCasesCount,
-          healthy: healthyDomains,
-        }}
-      />
-
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <MetricCard label="Active Cases" value={activeCases.length} icon={Briefcase} trendLabel={`${cases.length} total`} />
-        <MetricCard label="Quoting Now" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} drafts waiting`} />
-        <MetricCard label="Open Enrollments" value={enrollmentOpen.length} icon={ClipboardCheck} trendLabel={`${pendingSignatures} signatures pending`} />
-        <MetricCard label="Overdue Tasks" value={overdueTasks.length} icon={AlertCircle} trend={overdueTasks.length > 0 ? "down" : undefined} trendLabel={overdueTasks.length > 0 ? "needs attention" : "on track"} />
-      </div>
-
-      <ActionCenterPanel actions={actionCenterItems} />
-
-      <NextBestActionsPanel actions={nextBestActions} />
-
-      <CensusGapAlert cases={cases} />
-
-      <TodaysPriorities tasks={tasks} exceptions={exceptions} cases={cases} enrollments={enrollments} />
-
-      <WorkflowBottlenecksPanel items={bottlenecks} />
-
-      <IntegrationStatusPanel items={integrationHealth} />
-
-      <DomainControlGrid domains={domainCards} />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <InteractivePipeline cases={cases} />
-        <EnrollmentCountdowns enrollments={enrollments} />
-      </div>
-
-      <StalledCases cases={cases} />
-
-      <AlertsAndAuditFeed alerts={activeAlerts} feed={activityFeed} />
-
-      <RoutedPagesDirectory pages={routedPages} />
+      {roleView === "admin" && renderAdminView()}
+      {roleView === "operations" && renderOperationsView()}
+      {roleView === "broker" && renderBrokerView()}
+      {roleView === "employer" && renderEmployerView()}
     </div>
   );
 }
