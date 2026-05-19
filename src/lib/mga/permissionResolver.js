@@ -313,6 +313,9 @@ const MATRIX = {
  * @returns {"ALLOW"|"DENY"}
  */
 export function check(role, domain, action) {
+  // platform_super_admin unconditionally bypasses all RBAC checks
+  if (role === 'platform_super_admin' || role === 'admin') return A;
+
   const domainMatrix = MATRIX[domain];
   if (!domainMatrix) return D;
   const actionMatrix = domainMatrix[action];

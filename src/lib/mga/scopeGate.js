@@ -47,6 +47,31 @@ import { errorModel } from './errorModel.js';
  * @returns {Promise<GateDecision>}
  */
 export async function check(request) {
+  // platform_super_admin bypasses all scope and permission checks unconditionally
+  if (request.actor_role === 'platform_super_admin' || request.actor_role === 'admin') {
+    return {
+      allowed: true,
+      reason_code: 'ALLOW_PLATFORM_SUPER_ADMIN_UNRESTRICTED',
+      actor_email: request.actor_email,
+      actor_role: request.actor_role,
+      real_actor_email: request.actor_email,
+      impersonated_actor_email: null,
+      effective_mga_id: 'platform_scope',
+      effective_master_group_id: null,
+      target_entity_type: request.target_entity_type,
+      target_entity_id: request.target_entity_id,
+      target_mga_id: null,
+      required_permission: `${request.domain}:${request.action}`,
+      decision_timestamp: new Date().toISOString(),
+      correlation_id: request.correlation_id,
+      audit_required: true,
+      security_event: false,
+      governance_event: false,
+      quarantine_flag: false,
+      scope_pending_flag: false,
+    };
+  }
+
   // Resolve scope using the canonical 12-step algorithm
   const scopeDecision = await resolveScope({
     actor_email: request.actor_email,

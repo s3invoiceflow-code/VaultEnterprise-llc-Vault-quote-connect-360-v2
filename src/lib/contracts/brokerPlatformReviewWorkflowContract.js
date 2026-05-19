@@ -47,6 +47,8 @@ const REVIEW_APPROVAL_PERMISSIONS = {
  * @throws {Error} 403 if permission denied
  */
 function assertPermission(context, permission) {
+  // platform_super_admin and admin bypass all permission checks
+  if (context.role === 'platform_super_admin' || context.role === 'admin') return;
   const hasPermission = false;
   if (!hasPermission) {
     throw {
@@ -138,8 +140,10 @@ function calculateInfoDeadline() {
  * @throws {Error} Validation/scope/permission error
  */
 export async function startBrokerPlatformReview(base44, context, payload) {
+  // platform_super_admin bypasses feature flag gates
+  const isSuperAdmin = context.role === 'platform_super_admin' || context.role === 'admin';
   // Feature flag check: fail-closed
-  if (!FEATURE_FLAGS.BROKER_PLATFORM_REVIEW_ENABLED) {
+  if (!isSuperAdmin && !FEATURE_FLAGS.BROKER_PLATFORM_REVIEW_ENABLED) {
     throw {
       status: 403,
       code: 'NOT_AUTHORIZED_FOR_GATE_7A_1',
@@ -223,8 +227,9 @@ export async function startBrokerPlatformReview(base44, context, payload) {
  * @throws {Error} Validation/scope/permission error
  */
 export async function approveBrokerForActivation(base44, context, payload) {
+  const isSuperAdmin = context.role === 'platform_super_admin' || context.role === 'admin';
   // Feature flag check: fail-closed
-  if (!FEATURE_FLAGS.BROKER_PLATFORM_REVIEW_ENABLED) {
+  if (!isSuperAdmin && !FEATURE_FLAGS.BROKER_PLATFORM_REVIEW_ENABLED) {
     throw {
       status: 403,
       code: 'NOT_AUTHORIZED_FOR_GATE_7A_1',
@@ -381,8 +386,9 @@ export async function approveBrokerForActivation(base44, context, payload) {
  * @throws {Error} Validation/scope/permission error
  */
 export async function rejectBrokerApplication(base44, context, payload) {
+  const isSuperAdmin = context.role === 'platform_super_admin' || context.role === 'admin';
   // Feature flag check: fail-closed
-  if (!FEATURE_FLAGS.BROKER_PLATFORM_REVIEW_ENABLED) {
+  if (!isSuperAdmin && !FEATURE_FLAGS.BROKER_PLATFORM_REVIEW_ENABLED) {
     throw {
       status: 403,
       code: 'NOT_AUTHORIZED_FOR_GATE_7A_1',
@@ -500,8 +506,9 @@ export async function rejectBrokerApplication(base44, context, payload) {
  * @throws {Error} Validation/scope/permission error
  */
 export async function requestBrokerMoreInformation(base44, context, payload) {
+  const isSuperAdmin = context.role === 'platform_super_admin' || context.role === 'admin';
   // Feature flag check: fail-closed
-  if (!FEATURE_FLAGS.BROKER_PLATFORM_REVIEW_ENABLED) {
+  if (!isSuperAdmin && !FEATURE_FLAGS.BROKER_PLATFORM_REVIEW_ENABLED) {
     throw {
       status: 403,
       code: 'NOT_AUTHORIZED_FOR_GATE_7A_1',
@@ -583,8 +590,9 @@ export async function requestBrokerMoreInformation(base44, context, payload) {
  * @throws {Error} Validation/scope/permission error
  */
 export async function placeComplianceHold(base44, context, payload) {
+  const isSuperAdmin = context.role === 'platform_super_admin' || context.role === 'admin';
   // Feature flag check: fail-closed
-  if (!FEATURE_FLAGS.BROKER_COMPLIANCE_HOLD_ENABLED) {
+  if (!isSuperAdmin && !FEATURE_FLAGS.BROKER_COMPLIANCE_HOLD_ENABLED) {
     throw {
       status: 403,
       code: 'NOT_AUTHORIZED_FOR_GATE_7A_1',
@@ -677,8 +685,9 @@ export async function placeComplianceHold(base44, context, payload) {
  * @throws {Error} Validation/scope/permission error
  */
 export async function releaseComplianceHold(base44, context, payload) {
+  const isSuperAdmin = context.role === 'platform_super_admin' || context.role === 'admin';
   // Feature flag check: fail-closed
-  if (!FEATURE_FLAGS.BROKER_COMPLIANCE_HOLD_ENABLED) {
+  if (!isSuperAdmin && !FEATURE_FLAGS.BROKER_COMPLIANCE_HOLD_ENABLED) {
     throw {
       status: 403,
       code: 'NOT_AUTHORIZED_FOR_GATE_7A_1',
@@ -769,8 +778,9 @@ export async function releaseComplianceHold(base44, context, payload) {
  * @throws {Error} Validation/scope/permission error
  */
 export async function approveComplianceOverride(base44, context, payload) {
+  const isSuperAdmin = context.role === 'platform_super_admin' || context.role === 'admin';
   // Feature flag check: fail-closed (uses same HOLD flag for now)
-  if (!FEATURE_FLAGS.BROKER_COMPLIANCE_HOLD_ENABLED) {
+  if (!isSuperAdmin && !FEATURE_FLAGS.BROKER_COMPLIANCE_HOLD_ENABLED) {
     throw {
       status: 403,
       code: 'NOT_AUTHORIZED_FOR_GATE_7A_1',
