@@ -64,13 +64,11 @@ export default function MasterGeneralAgentCommandPage() {
       // Platform admins: load all MGAs directly
       if (isPlatformAdmin) {
         const all = await base44.entities.MasterGeneralAgent.list();
+        setAllMGAs(all || []);
         if (all?.length) {
-          setAllMGAs(all);
           setMgaRecord(all[0]);
-        } else {
-          setScopeDenied(true);
-          setScopeError('NO_MGA_RECORDS');
         }
+        // Platform admins always see the page even with no MGAs
         return;
       }
       // MGA-scoped users: use scoped service
@@ -108,7 +106,8 @@ export default function MasterGeneralAgentCommandPage() {
     );
   }
 
-  if (scopeDenied || !hasAccess) {
+  // Non-platform users with no access
+  if (!hasAccess || (scopeDenied && !isPlatformAdmin)) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-3 text-center max-w-md">
@@ -118,6 +117,23 @@ export default function MasterGeneralAgentCommandPage() {
             You do not have an active MGA membership or your scope could not be resolved.
             {scopeError && <span className="block mt-1 text-xs font-mono text-muted-foreground/70">{scopeError}</span>}
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Platform admin with no MGAs yet — show empty state
+  if (isPlatformAdmin && !mgaRecord) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center gap-3 text-center max-w-md">
+            <Shield className="w-10 h-10 text-primary/40" />
+            <p className="text-base font-medium text-foreground">No MGA Records Found</p>
+            <p className="text-sm text-muted-foreground">
+              There are no Master General Agent records in the system yet. Create your first MGA to get started.
+            </p>
+          </div>
         </div>
       </div>
     );
