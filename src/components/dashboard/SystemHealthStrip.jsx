@@ -7,7 +7,7 @@ const ITEMS = [
   { key: "exceptions", label: "Open Exceptions", href: "/exceptions", icon: ShieldAlert, tone: "red" },
   { key: "censusIssues", label: "Census Issues", href: "/census", icon: FileWarning, tone: "orange" },
   { key: "stalledCases", label: "Stalled Cases", href: "/cases", icon: Workflow, tone: "amber" },
-  { key: "healthy", label: "Healthy Domains", href: "/dashboard", icon: CheckCircle2, tone: "green" },
+  { key: "healthy", label: "Healthy Domains", href: "/", icon: CheckCircle2, tone: "green" },
 ];
 
 const toneClass = {

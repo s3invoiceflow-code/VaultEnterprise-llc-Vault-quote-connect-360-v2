@@ -34,9 +34,12 @@ import IntegrationStatusPanel from "@/components/dashboard/IntegrationStatusPane
 import NextBestActionsPanel from "@/components/dashboard/NextBestActionsPanel";
 import { buildPlatformDependencyRegistry } from "@/components/platform/platformDependencyRegistry";
 import { buildActionCenterFromRegistry } from "@/components/platform/platformOrchestrationEngine";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin" || user?.role === "platform_super_admin";
   const [roleView, setRoleView] = useState("admin");
 
   const { data: cases = [], isLoading } = useQuery({
@@ -408,37 +411,42 @@ export default function Dashboard() {
     },
   ], [activeCases.length, stalledCasesCount, cases, quotingCases.length, censusVersions.length, censusIssues, quoteScenarios, draftQuotes, enrollmentOpen.length, employeeEnrollments.length, pendingSignatures, activeRenewals, renewals, employers.length, documents.length, proposals.length, openExceptions, enrollments.length]);
 
-  const routedPages = useMemo(() => [
-    { label: "Dashboard", href: "/" },
-    { label: "Cases", href: "/cases" },
-    { label: "New Case", href: "/cases/new" },
-    { label: "Census", href: "/census" },
-    { label: "Quotes", href: "/quotes" },
-    { label: "Enrollment", href: "/enrollment" },
-    { label: "Renewals", href: "/renewals" },
-    { label: "Tasks", href: "/tasks" },
-    { label: "Employers", href: "/employers" },
-    { label: "Plans", href: "/plans" },
-    { label: "Proposals", href: "/proposals" },
-    { label: "Exceptions", href: "/exceptions" },
-    { label: "Contributions", href: "/contributions" },
-    { label: "Employee Portal", href: "/employee-portal" },
-    { label: "Employee Management", href: "/employee-management" },
-    { label: "Employee Enrollment", href: "/employee-enrollment" },
-    { label: "Employee Benefits", href: "/employee-benefits" },
-    { label: "Employer Portal", href: "/employer-portal" },
-    { label: "PolicyMatch", href: "/policymatch" },
-    { label: "Integration Infra", href: "/integration-infra" },
-    { label: "Settings", href: "/settings" },
-    { label: "Help", href: "/help" },
-    { label: "Help Admin", href: "/help-admin" },
-    { label: "Help Dashboard", href: "/help-dashboard" },
-    { label: "Help Coverage", href: "/help-coverage" },
-    { label: "Help Analytics", href: "/help-analytics" },
-    { label: "Help Targets", href: "/help-target-registry" },
-    { label: "Help Manuals", href: "/help-manual-manager" },
-    { label: "ACA Library", href: "/aca-library" },
-  ], []);
+  const routedPages = useMemo(() => {
+    const base = [
+      { label: "Dashboard", href: "/" },
+      { label: "Cases", href: "/cases" },
+      { label: "New Case", href: "/cases/new" },
+      { label: "Census", href: "/census" },
+      { label: "Quotes", href: "/quotes" },
+      { label: "Enrollment", href: "/enrollment" },
+      { label: "Renewals", href: "/renewals" },
+      { label: "Tasks", href: "/tasks" },
+      { label: "Employers", href: "/employers" },
+      { label: "Plans", href: "/plans" },
+      { label: "Proposals", href: "/proposals" },
+      { label: "Exceptions", href: "/exceptions" },
+      { label: "Contributions", href: "/contributions" },
+      { label: "Employee Portal", href: "/employee-portal" },
+      { label: "Employee Management", href: "/employee-management" },
+      { label: "Employer Portal", href: "/employer-portal" },
+      { label: "PolicyMatch", href: "/policymatch" },
+      { label: "Settings", href: "/settings" },
+      { label: "Help", href: "/help" },
+      { label: "ACA Library", href: "/aca-library" },
+    ];
+    if (isAdmin) {
+      base.push(
+        { label: "Integration Infra", href: "/integration-infra" },
+        { label: "Help Admin", href: "/help-admin" },
+        { label: "Help Dashboard", href: "/help-dashboard" },
+        { label: "Help Coverage", href: "/help-coverage" },
+        { label: "Help Analytics", href: "/help-analytics" },
+        { label: "Help Targets", href: "/help-target-registry" },
+        { label: "Help Manuals", href: "/help-manual-manager" },
+      );
+    }
+    return base;
+  }, [isAdmin]);
 
   if (isLoading) return <DashboardSkeleton />;
 
@@ -450,6 +458,8 @@ export default function Dashboard() {
           description="Overview of your benefits operations"
           actions={<Link to="/cases/new"><Button><Briefcase className="w-4 h-4 mr-2" /> New Case</Button></Link>}
         />
+        <WorkflowStartPanel />
+        <QuickActions />
       </div>
     );
   }
