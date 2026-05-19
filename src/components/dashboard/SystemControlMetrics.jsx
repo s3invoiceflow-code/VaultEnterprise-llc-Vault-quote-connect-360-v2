@@ -5,7 +5,7 @@ import MetricCard from "@/components/shared/MetricCard";
 
 export default function SystemControlMetrics({ metrics }) {
   const items = [
-    { label: "Eligible Members", value: metrics.totalEligibleMembers, trendLabel: `${metrics.totalEligible} window eligible`, icon: Users, href: "/employee-management" },
+    { label: "Eligible Members", value: metrics.totalEligibleMembers, trendLabel: metrics.totalEligible === 0 ? "No windows yet" : `${metrics.totalEligible} window eligible`, icon: Users, href: "/employee-management" },
     { label: "Enrollment Completion", value: `${metrics.enrollmentCompletion}%`, trendLabel: metrics.totalEligibleMembers === 0 ? "No eligible members" : `${metrics.enrolledEmployees} of ${metrics.totalEligibleMembers} enrolled`, icon: ClipboardCheck, href: "/enrollment" },
     { label: "Active Quote Pipeline", value: metrics.quotePipeline, trendLabel: `${metrics.quoteCompleted} completed`, icon: FileText, href: "/quotes" },
     { label: "Renewal Pipeline", value: metrics.renewalPipeline, trendLabel: `${metrics.renewalOverdue} overdue`, icon: RefreshCw, href: "/renewals" },
@@ -14,7 +14,7 @@ export default function SystemControlMetrics({ metrics }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
       {items.map((item) => (
         <Link key={item.label} to={item.href} className="rounded-2xl focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2">
           <MetricCard
