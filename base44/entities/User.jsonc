@@ -1,0 +1,22 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user",
+        "broker",
+        "employer",
+        "mga_admin",
+        "mga_manager",
+        "mga_user",
+        "mga_read_only",
+        "platform_super_admin"
+      ],
+      "default": "user",
+      "description": "User role controlling access level"
+    }
+  }
+}
