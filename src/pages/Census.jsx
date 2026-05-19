@@ -1,11 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Users, FileUp, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageHeader from "@/components/shared/PageHeader";
 import EmptyState from "@/components/shared/EmptyState";
 import CensusUploadModal from "@/components/census/CensusUploadModal";
@@ -22,6 +21,18 @@ export default function Census() {
   const [selectedCaseId, setSelectedCaseId] = useState("");
   const [showUpload, setShowUpload] = useState(false);
   const [viewingVersionId, setViewingVersionId] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const selectorRef = useRef(null);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (selectorRef.current && !selectorRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   // Fetch all cases
   const { data: cases = [] } = useQuery({
@@ -89,34 +100,45 @@ export default function Census() {
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <div className="relative flex-1">
+            <div className="relative flex-1" ref={selectorRef}>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <Input
-                placeholder="Search cases..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
+                placeholder="Search and select a case..."
+                value={selectedCaseId ? (cases.find(c => c.id === selectedCaseId)?.employer_name + (cases.find(c => c.id === selectedCaseId)?.case_number ? ` (${cases.find(c => c.id === selectedCaseId)?.case_number})` : "")) : search}
+                onChange={e => { setSearch(e.target.value); setSelectedCaseId(""); setDropdownOpen(true); }}
+                onFocus={() => setDropdownOpen(true)}
                 className="pl-9 text-sm"
+                autoComplete="off"
               />
+              {dropdownOpen && (
+                <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-lg border bg-popover shadow-lg">
+                  {filteredCases.length === 0 ? (
+                    <div className="p-3 text-sm text-muted-foreground text-center">No cases found</div>
+                  ) : (
+                    filteredCases.map(c => (
+                      <button
+                        key={c.id}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted transition-colors flex items-center justify-between gap-2"
+                        onMouseDown={e => e.preventDefault()}
+                        onClick={() => { setSelectedCaseId(c.id); setSearch(""); setDropdownOpen(false); }}
+                      >
+                        <span className="font-medium">{c.employer_name || "Unnamed"}</span>
+                        <span className="text-xs text-muted-foreground shrink-0">{c.case_number} · {c.stage}</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
-            <Select value={selectedCaseId} onValueChange={setSelectedCaseId}>
-              <SelectTrigger className="w-64">
-                <SelectValue placeholder="Select a case..." />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredCases.map(c => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.employer_name} {c.case_number && `(${c.case_number})`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              onClick={() => { setSelectedCaseId(""); setSearch(""); }}
-              className="text-xs"
-            >
-              Clear
-            </Button>
+            {selectedCaseId && (
+              <Button
+                variant="outline"
+                onClick={() => { setSelectedCaseId(""); setSearch(""); }}
+                className="text-xs shrink-0"
+              >
+                Clear
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
