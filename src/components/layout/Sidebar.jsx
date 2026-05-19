@@ -42,6 +42,7 @@ export default function Sidebar({ collapsed, onToggle }) {
   };
 
   const canViewItem = (item) => {
+    if (user?.role === 'platform_super_admin') return true;
     if (!item.roles) return true;
     return item.roles.includes(user?.role);
   };

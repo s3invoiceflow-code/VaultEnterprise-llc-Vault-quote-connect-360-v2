@@ -187,7 +187,12 @@ class PermissionResolver {
    * @returns {object} { allowed: boolean, reason: string, reason_detail?: string }
    */
   async resolvePermission(user, action, record) {
-    // Step 1: Validate user has role-based permission for action
+    // Step 1: Platform super admin — unconditional full access, bypass all checks
+    if (user?.role === 'platform_super_admin') {
+      return { allowed: true, reason: 'ALLOW_PLATFORM_SUPER_ADMIN_UNRESTRICTED' };
+    }
+
+    // Step 2: Validate user has role-based permission for action
     const rolePermissions = ROLE_PERMISSIONS[user.role] || [];
     if (!rolePermissions.includes(action)) {
       return {
@@ -197,8 +202,8 @@ class PermissionResolver {
       };
     }
 
-    // Step 2: Platform admin override — allow all
-    if (['platform_admin', 'platform_super_admin'].includes(user.role)) {
+    // Step 3: Platform admin override — allow all
+    if (['platform_admin', 'platform_super_admin', 'admin'].includes(user.role)) {
       return {
         allowed: true,
         reason: 'ALLOW_PLATFORM_ADMIN_OVERRIDE'
@@ -253,7 +258,12 @@ class PermissionResolver {
       };
     }
 
-    // Step 5: Other roles not supported
+    // Step 5: Admin role — allow all
+    if (user.role === 'admin') {
+      return { allowed: true, reason: 'ALLOW_ADMIN_ROLE' };
+    }
+
+    // Step 6: Other roles not supported
     return {
       allowed: false,
       reason: 'DENY_INVALID_ROLE',
