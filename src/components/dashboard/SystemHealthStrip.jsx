@@ -7,7 +7,7 @@ const ITEMS = [
   { key: "exceptions", label: "Open Exceptions", href: "/exceptions", icon: ShieldAlert, tone: "red" },
   { key: "censusIssues", label: "Census Issues", href: "/census", icon: FileWarning, tone: "orange" },
   { key: "stalledCases", label: "Stalled Cases", href: "/cases", icon: Workflow, tone: "amber" },
-  { key: "healthy", label: "Healthy Domains", href: "/", icon: CheckCircle2, tone: "green" },
+  { key: "healthy", label: "Health Checks Passing", href: "/", icon: CheckCircle2, tone: "green" },
 ];
 
 const toneClass = {
@@ -29,7 +29,7 @@ export default function SystemHealthStrip({ metrics }) {
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-wide opacity-80">{item.label}</p>
-                  <p className="text-2xl font-bold mt-1">{value}</p>
+                  <p className="text-2xl font-bold mt-1">{value}{item.key === "healthy" ? "/4" : ""}</p>
                 </div>
                 <div className="p-2 rounded-xl bg-white/60">
                   <Icon className="w-5 h-5" />

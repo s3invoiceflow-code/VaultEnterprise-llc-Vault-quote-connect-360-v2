@@ -51,7 +51,7 @@ export default function Dashboard() {
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks-pending"],
-    queryFn: () => base44.entities.CaseTask.filter({ status: "pending" }, "-created_date", 20),
+    queryFn: () => base44.entities.CaseTask.filter({ status: "pending" }, "-created_date", 200),
     staleTime: STALE,
   });
 
@@ -115,6 +115,12 @@ export default function Dashboard() {
     staleTime: STALE,
   });
 
+  const { data: censusMembers = [] } = useQuery({
+    queryKey: ["dashboard-census-members"],
+    queryFn: () => base44.entities.CensusMember.filter({ is_eligible: true }, "-created_date", 500),
+    staleTime: STALE,
+  });
+
   const activeCases = useMemo(() => cases.filter((c) => !["closed", "renewed"].includes(c.stage)), [cases]);
   const quotingCases = useMemo(() => cases.filter((c) => ["ready_for_quote", "quoting"].includes(c.stage)), [cases]);
   const enrollmentOpen = useMemo(() => enrollments.filter((e) => ["open", "closing_soon"].includes(e.status)), [enrollments]);
@@ -160,17 +166,22 @@ export default function Dashboard() {
     renewals,
     exceptions,
     employeeEnrollments,
-  }), [cases, tasks, censusVersions, quoteScenarios, enrollments, renewals, exceptions, employeeEnrollments]);
+  }), [cases, tasks, censusVersions, quoteScenarios, enrollments, renewals, exceptions, employeeEnrollments, censusMembers]);
 
   const actionCenterItems = useMemo(() => buildActionCenterFromRegistry(registry), [registry]);
 
   const dashboardMetrics = useMemo(() => {
-    const totalEmployees = employeeEnrollments.length;
+    // True headcount: eligible CensusMember records (is_eligible=true filtered at query)
+    const totalEligibleMembers = censusMembers.length;
+    // Fallback: sum of EnrollmentWindow.total_eligible (manually-entered field on windows)
     const totalEligible = enrollments.reduce((sum, item) => sum + (item.total_eligible || 0), 0);
     const enrolledEmployees = employeeEnrollments.filter((item) => item.status === "completed").length;
-    const enrollmentCompletion = totalEligible > 0 ? Math.round((enrolledEmployees / totalEligible) * 100) : 0;
+    // Denominator: prefer census-derived eligible count; fall back to window total_eligible
+    const enrollmentDenominator = totalEligibleMembers > 0 ? totalEligibleMembers : totalEligible;
+    const enrollmentCompletion = enrollmentDenominator > 0 ? Math.round((enrolledEmployees / enrollmentDenominator) * 100) : 0;
     const quoteCompleted = quoteScenarios.filter((item) => item.status === "completed").length;
-    const quotePipeline = quoteScenarios.filter((item) => ["draft", "running", "completed"].includes(item.status)).length;
+    // Active pipeline = in-flight only (draft + running); excludes completed
+    const quotePipeline = quoteScenarios.filter((item) => ["draft", "running"].includes(item.status)).length;
     const renewalOverdue = renewals.filter((item) => item.renewal_date && new Date(item.renewal_date) < new Date() && item.status !== "completed").length;
     const renewalPipeline = renewals.filter((item) => item.status !== "completed").length;
     const openCases = activeCases.length;
@@ -178,7 +189,7 @@ export default function Dashboard() {
     const slaRisk = stalledCasesCount + overdueTasks.length;
 
     return {
-      totalEmployees,
+      totalEligibleMembers,
       totalEligible,
       enrolledEmployees,
       enrollmentCompletion,
@@ -425,10 +436,10 @@ export default function Dashboard() {
         }}
       />
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <MetricCard label="Active Cases" value={activeCases.length} icon={Briefcase} trendLabel={`${cases.length} total`} />
-        <MetricCard label="Quoting Now" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} drafts waiting`} />
+        <MetricCard label="Cases in Quoting" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} draft scenarios`} />
         <MetricCard label="Open Enrollments" value={enrollmentOpen.length} icon={ClipboardCheck} trendLabel={`${pendingSignatures} signatures pending`} />
         <MetricCard label="Overdue Tasks" value={overdueTasks.length} icon={AlertCircle} trend={overdueTasks.length > 0 ? "down" : undefined} trendLabel={overdueTasks.length > 0 ? "needs attention" : "on track"} />
+        <MetricCard label="Active Renewals" value={activeRenewals} icon={RefreshCw} trendLabel={`${dashboardMetrics.renewalOverdue} overdue`} />
       </div>
       <ActionCenterPanel actions={actionCenterItems} />
       <IntegrationStatusPanel items={integrationHealth} />
@@ -462,7 +473,7 @@ export default function Dashboard() {
     <>
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <MetricCard label="Active Cases" value={activeCases.length} icon={Briefcase} trendLabel={`${cases.length} total`} />
-        <MetricCard label="Quoting Now" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} drafts waiting`} />
+        <MetricCard label="Cases in Quoting" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} draft scenarios`} />
         <MetricCard label="Proposals Out" value={proposalAttention} icon={FileText} trendLabel="awaiting response" />
         <MetricCard label="Active Renewals" value={activeRenewals} icon={RefreshCw} trendLabel={`${dashboardMetrics.renewalOverdue} overdue`} />
       </div>

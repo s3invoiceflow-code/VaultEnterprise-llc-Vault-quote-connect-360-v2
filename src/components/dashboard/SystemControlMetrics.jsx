@@ -5,12 +5,12 @@ import MetricCard from "@/components/shared/MetricCard";
 
 export default function SystemControlMetrics({ metrics }) {
   const items = [
-    { label: "Total Employees", value: metrics.totalEmployees, trendLabel: `${metrics.totalEligible} eligible`, icon: Users, href: "/employee-management" },
-    { label: "Enrollment Completion", value: `${metrics.enrollmentCompletion}%`, trendLabel: `${metrics.enrolledEmployees} completed`, icon: ClipboardCheck, href: "/enrollment" },
-    { label: "Quote Pipeline", value: metrics.quotePipeline, trendLabel: `${metrics.quoteCompleted} completed`, icon: FileText, href: "/quotes" },
+    { label: "Eligible Members", value: metrics.totalEligibleMembers, trendLabel: `${metrics.totalEligible} window eligible`, icon: Users, href: "/employee-management" },
+    { label: "Enrollment Completion", value: `${metrics.enrollmentCompletion}%`, trendLabel: `${metrics.enrolledEmployees} of ${metrics.totalEligibleMembers} enrolled`, icon: ClipboardCheck, href: "/enrollment" },
+    { label: "Active Quote Pipeline", value: metrics.quotePipeline, trendLabel: `${metrics.quoteCompleted} completed`, icon: FileText, href: "/quotes" },
     { label: "Renewal Pipeline", value: metrics.renewalPipeline, trendLabel: `${metrics.renewalOverdue} overdue`, icon: RefreshCw, href: "/renewals" },
     { label: "Open Cases", value: metrics.openCases, trendLabel: `${metrics.totalCases} total`, icon: Briefcase, href: "/cases" },
-    { label: "SLA Risk", value: metrics.slaRisk, trendLabel: metrics.slaRisk > 0 ? "Needs action" : "Healthy", icon: AlertTriangle, href: "/cases" },
+    { label: "Workflow Risk", value: metrics.slaRisk, trendLabel: metrics.slaRisk > 0 ? "Needs action" : "Healthy", icon: AlertTriangle, href: "/cases" },
   ];
 
   return (
