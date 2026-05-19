@@ -1,0 +1,128 @@
+name: Phase 1 Broker CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - phase1-broker-canonicalization-ci-infra
+
+permissions:
+  contents: read
+
+jobs:
+  phase1-broker-validation:
+    name: Phase 1 Broker Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run lint if configured
+        run: npm run lint --if-present
+
+      - name: Validate no deprecated broker entity references
+        run: |
+          set -euo pipefail
+          echo "Checking for deprecated broker entities..."
+          if grep -R "BrokerCase\|BrokerEmployer" src lib --include="*.js" --include="*.jsx" --include="*.ts" --include="*.tsx"; then
+            echo "FAIL: Deprecated BrokerCase/BrokerEmployer references found"
+            exit 1
+          fi
+          echo "PASS: No deprecated broker entity references found"
+
+      - name: Validate canonical relationship access
+        run: |
+          set -euo pipefail
+          echo "Checking for relationship.relationship_status usage..."
+          if grep -R "relationship\.relationship_status" src lib --include="*.js" --include="*.jsx" --include="*.ts" --include="*.tsx"; then
+            echo "FAIL: relationship.relationship_status usage found"
+            exit 1
+          fi
+          echo "PASS: No relationship.relationship_status usage found"
+
+      - name: Validate canonical AuditEvent fields
+        run: |
+          set -euo pipefail
+          echo "Checking broker contract audit field canonicalization..."
+          FILES=$(find src/lib/contracts lib/contracts -name "broker*Contract.js" 2>/dev/null || true)
+          if [ -z "$FILES" ]; then
+            echo "No broker contract files found under src/lib/contracts or lib/contracts"
+            exit 1
+          fi
+          if grep -n "actor_email\|actor_user_id\|action:\|detail:" $FILES; then
+            echo "FAIL: Legacy AuditEvent fields found in broker contracts"
+            exit 1
+          fi
+          if ! grep -R "event_type:" src/lib/contracts lib/contracts --include="broker*Contract.js" >/dev/null 2>&1; then
+            echo "FAIL: No canonical event_type fields found in broker contracts"
+            exit 1
+          fi
+          if ! grep -R "actor_id:" src/lib/contracts lib/contracts --include="broker*Contract.js" >/dev/null 2>&1; then
+            echo "FAIL: No canonical actor_id fields found in broker contracts"
+            exit 1
+          fi
+          if ! grep -R "event_detail:" src/lib/contracts lib/contracts --include="broker*Contract.js" >/dev/null 2>&1; then
+            echo "FAIL: No canonical event_detail fields found in broker contracts"
+            exit 1
+          fi
+          echo "PASS: Broker contract AuditEvent fields are canonical"
+
+      - name: Validate broker signup duplicate detection
+        run: |
+          set -euo pipefail
+          echo "Checking duplicate broker signup guard..."
+          if [ ! -f "src/functions/brokerSignup.js" ]; then
+            echo "WARN: src/functions/brokerSignup.js not found; skipping duplicate signup check"
+            exit 0
+          fi
+          if ! grep -q "DUPLICATE_BROKER_SIGNUP" src/functions/brokerSignup.js; then
+            echo "FAIL: DUPLICATE_BROKER_SIGNUP guard not found"
+            exit 1
+          fi
+          echo "PASS: DUPLICATE_BROKER_SIGNUP guard found"
+
+      - name: Generate CI evidence summary
+        if: always()
+        run: |
+          {
+            echo "# Phase 1 Broker CI Evidence"
+            echo ""
+            echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "Commit: $GITHUB_SHA"
+            echo "Branch: ${GITHUB_REF_NAME}"
+            echo "Run ID: ${GITHUB_RUN_ID}"
+            echo ""
+            echo "Checks included:"
+            echo "- npm ci"
+            echo "- npm run build"
+            echo "- npm run lint --if-present"
+            echo "- deprecated broker entity scan"
+            echo "- relationship.relationship_status scan"
+            echo "- AuditEvent canonical field scan"
+            echo "- duplicate broker signup guard scan"
+          } > ci-evidence.md
+
+      - name: Upload CI evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase1-broker-ci-evidence
+          path: ci-evidence.md
+          retention-days: 30
