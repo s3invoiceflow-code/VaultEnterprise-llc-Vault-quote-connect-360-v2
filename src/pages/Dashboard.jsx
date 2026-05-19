@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
   Briefcase,
@@ -37,136 +37,83 @@ import { buildActionCenterFromRegistry } from "@/components/platform/platformOrc
 import { useAuth } from "@/lib/AuthContext";
 
 export default function Dashboard() {
-  const queryClient = useQueryClient();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin" || user?.role === "platform_super_admin";
   const [roleView, setRoleView] = useState("admin");
 
+  const STALE = 60_000; // 1 minute — prevents refetch storms on navigation
+
   const { data: cases = [], isLoading } = useQuery({
     queryKey: ["cases"],
     queryFn: () => base44.entities.BenefitCase.list("-created_date", 200),
+    staleTime: STALE,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks-pending"],
     queryFn: () => base44.entities.CaseTask.filter({ status: "pending" }, "-created_date", 20),
+    staleTime: STALE,
   });
 
   const { data: enrollments = [] } = useQuery({
     queryKey: ["enrollments"],
     queryFn: () => base44.entities.EnrollmentWindow.list("-created_date", 100),
+    staleTime: STALE,
   });
 
   const { data: exceptions = [] } = useQuery({
     queryKey: ["exceptions"],
     queryFn: () => base44.entities.ExceptionItem.list("-created_date", 50),
+    staleTime: STALE,
   });
 
   const { data: censusVersions = [] } = useQuery({
     queryKey: ["dashboard-census-versions"],
     queryFn: () => base44.entities.CensusVersion.list("-created_date", 200),
+    staleTime: STALE,
   });
 
   const { data: quoteScenarios = [] } = useQuery({
     queryKey: ["dashboard-quote-scenarios"],
     queryFn: () => base44.entities.QuoteScenario.list("-created_date", 200),
+    staleTime: STALE,
   });
-
 
   const { data: renewals = [] } = useQuery({
     queryKey: ["dashboard-renewals"],
     queryFn: () => base44.entities.RenewalCycle.list("-created_date", 200),
+    staleTime: STALE,
   });
 
   const { data: documents = [] } = useQuery({
     queryKey: ["dashboard-documents"],
     queryFn: () => base44.entities.Document.list("-created_date", 200),
+    staleTime: STALE,
   });
 
   const { data: employers = [] } = useQuery({
     queryKey: ["dashboard-employers"],
     queryFn: () => base44.entities.EmployerGroup.list("-created_date", 200),
+    staleTime: STALE,
   });
 
   const { data: proposals = [] } = useQuery({
     queryKey: ["dashboard-proposals"],
     queryFn: () => base44.entities.Proposal.list("-created_date", 200),
+    staleTime: STALE,
   });
 
   const { data: employeeEnrollments = [] } = useQuery({
     queryKey: ["dashboard-employee-enrollments"],
     queryFn: () => base44.entities.EmployeeEnrollment.list("-created_date", 500),
+    staleTime: STALE,
   });
 
   const { data: activityLogs = [] } = useQuery({
     queryKey: ["dashboard-activity-logs"],
     queryFn: () => base44.entities.ActivityLog.list("-created_date", 50),
+    staleTime: STALE,
   });
-
-  useEffect(() => {
-    const unsubscribeCases = base44.entities.BenefitCase.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["cases"] });
-    });
-
-    const unsubscribeTasks = base44.entities.CaseTask.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["tasks-pending"] });
-    });
-
-    const unsubscribeEnrollments = base44.entities.EnrollmentWindow.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["enrollments"] });
-    });
-
-    const unsubscribeExceptions = base44.entities.ExceptionItem.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["exceptions"] });
-    });
-
-    const unsubscribeCensusVersions = base44.entities.CensusVersion.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-census-versions"] });
-    });
-
-    const unsubscribeQuoteScenarios = base44.entities.QuoteScenario.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-quote-scenarios"] });
-    });
-
-    const unsubscribeRenewals = base44.entities.RenewalCycle.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-renewals"] });
-    });
-
-    const unsubscribeDocuments = base44.entities.Document.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-documents"] });
-    });
-
-    const unsubscribeEmployers = base44.entities.EmployerGroup.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-employers"] });
-    });
-
-    const unsubscribeProposals = base44.entities.Proposal.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-proposals"] });
-    });
-
-    const unsubscribeEmployeeEnrollments = base44.entities.EmployeeEnrollment.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-employee-enrollments"] });
-    });
-
-    const unsubscribeActivityLogs = base44.entities.ActivityLog.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["dashboard-activity-logs"] });
-    });
-
-    return () => {
-      unsubscribeCases?.();
-      unsubscribeTasks?.();
-      unsubscribeEnrollments?.();
-      unsubscribeExceptions?.();
-      unsubscribeCensusVersions?.();
-      unsubscribeQuoteScenarios?.();
-      unsubscribeRenewals?.();
-      unsubscribeDocuments?.();
-      unsubscribeEmployers?.();
-      unsubscribeProposals?.();
-      unsubscribeEmployeeEnrollments?.();
-      unsubscribeActivityLogs?.();
-    };
-  }, [queryClient]);
 
   const activeCases = useMemo(() => cases.filter((c) => !["closed", "renewed"].includes(c.stage)), [cases]);
   const quotingCases = useMemo(() => cases.filter((c) => ["ready_for_quote", "quoting"].includes(c.stage)), [cases]);
