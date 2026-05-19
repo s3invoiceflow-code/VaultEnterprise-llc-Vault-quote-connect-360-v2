@@ -6,46 +6,47 @@ import { Badge } from "@/components/ui/badge";
 
 export default function DomainControlGrid({ domains }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      {domains.map((domain) => {
-        const Icon = domain.icon;
-        return (
-          <Card key={domain.key} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-3">
+    <div>
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Domain Overview</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {domains.map((domain) => {
+          const Icon = domain.icon;
+          return (
+            <Card key={domain.key} className="hover:shadow-md transition-all duration-200 hover:border-primary/20">
+              <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                    <Icon className="w-5 h-5" />
+                  <div className="w-9 h-9 rounded-lg bg-primary/8 text-primary flex items-center justify-center flex-shrink-0 border border-primary/10">
+                    <Icon className="w-4 h-4" />
                   </div>
-                  <div>
-                    <CardTitle className="text-base">{domain.label}</CardTitle>
-                    <p className="text-xs text-muted-foreground mt-0.5">{domain.description}</p>
+                  <div className="min-w-0">
+                    <CardTitle className="text-sm font-semibold">{domain.label}</CardTitle>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{domain.description}</p>
                   </div>
                 </div>
-                <Badge variant="outline" className="text-[10px]">{domain.href}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                {domain.stats.map((stat) => (
-                  <div key={stat.label} className="rounded-lg border bg-muted/30 p-2.5">
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{stat.label}</p>
-                    <p className="text-lg font-semibold mt-1">{stat.value}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-1.5">
-                {domain.actions.map((action) => (
-                  <Link key={action.label} to={action.href} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm hover:bg-muted/40 transition-colors">
-                    <span>{action.label}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+              </CardHeader>
+              <CardContent className="space-y-3 pt-0">
+                <div className="grid grid-cols-4 gap-1.5">
+                  {domain.stats.map((stat) => (
+                    <div key={stat.label} className="rounded-md bg-muted/40 p-2 text-center">
+                      <p className="text-base font-bold text-foreground leading-none">{stat.value}</p>
+                      <p className="text-[9px] uppercase tracking-wide text-muted-foreground mt-1 leading-tight">{stat.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {domain.actions.map((action, i) => (
+                    <Link key={action.label} to={action.href}>
+                      <Badge variant={i === 0 ? "default" : "outline"} className="text-[11px] cursor-pointer hover:opacity-80 transition-opacity font-normal py-1">
+                        {action.label}
+                      </Badge>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }

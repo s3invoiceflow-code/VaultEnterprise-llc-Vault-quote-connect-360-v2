@@ -11,28 +11,29 @@ const ITEMS = [
 ];
 
 const toneClass = {
-  red: "border-red-200 bg-red-50 text-red-700",
-  orange: "border-orange-200 bg-orange-50 text-orange-700",
-  amber: "border-amber-200 bg-amber-50 text-amber-700",
-  green: "border-green-200 bg-green-50 text-green-700",
+  red:    { card: "border-border bg-card hover:border-red-200",    text: "text-red-600",    icon: "bg-red-50 text-red-500" },
+  orange: { card: "border-border bg-card hover:border-orange-200", text: "text-orange-600", icon: "bg-orange-50 text-orange-500" },
+  amber:  { card: "border-border bg-card hover:border-amber-200",  text: "text-amber-600",  icon: "bg-amber-50 text-amber-500" },
+  green:  { card: "border-border bg-card hover:border-green-200",  text: "text-green-600",  icon: "bg-green-50 text-green-500" },
 };
 
 export default function SystemHealthStrip({ metrics }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
       {ITEMS.map((item) => {
         const Icon = item.icon;
         const value = metrics[item.key] ?? 0;
+        const t = toneClass[item.tone];
         return (
           <Link key={item.key} to={item.href}>
-            <Card className={`border transition-colors hover:shadow-sm ${toneClass[item.tone]}`}>
-              <CardContent className="p-4 flex items-center justify-between">
+            <Card className={`transition-all duration-200 hover:shadow-md cursor-pointer ${t.card}`}>
+              <CardContent className="p-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wide opacity-80">{item.label}</p>
-                  <p className="text-2xl font-bold mt-1">{value}{item.key === "healthy" ? "/4" : ""}</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{item.label}</p>
+                  <p className={`text-2xl font-bold mt-1 ${t.text}`}>{value}{item.key === "healthy" ? "/4" : ""}</p>
                 </div>
-                <div className="p-2 rounded-xl bg-white/60">
-                  <Icon className="w-5 h-5" />
+                <div className={`p-2.5 rounded-xl flex-shrink-0 ${t.icon}`}>
+                  <Icon className="w-4 h-4" />
                 </div>
               </CardContent>
             </Card>

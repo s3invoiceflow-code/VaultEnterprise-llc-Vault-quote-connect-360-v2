@@ -14,10 +14,11 @@ const ACTIONS = [
 
 export default function QuickActions() {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 items-center">
+      <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mr-1">Quick actions</span>
       {ACTIONS.map(a => (
         <Link key={a.href} to={a.href}>
-          <Button size="sm" variant={a.variant} className="h-8 text-xs gap-1.5">
+          <Button size="sm" variant={a.variant} className="h-8 text-xs gap-1.5 font-medium">
             <a.icon className="w-3.5 h-3.5" />
             {a.label}
           </Button>

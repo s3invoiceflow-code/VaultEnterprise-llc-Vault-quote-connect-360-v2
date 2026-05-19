@@ -2,16 +2,14 @@ import React from "react";
 
 export default function PageHeader({ title, description, actions }) {
   return (
-    <div className="rounded-2xl border border-border/70 bg-card/95 px-5 py-4 shadow-sm sm:px-6 sm:py-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight sm:text-3xl">{title}</h1>
-          {description && (
-            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-          )}
-        </div>
-        {actions && <div className="flex items-center gap-2">{actions}</div>}
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2">
+      <div className="min-w-0">
+        <h1 className="text-xl font-semibold text-foreground tracking-tight sm:text-2xl">{title}</h1>
+        {description && (
+          <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">{description}</p>
+        )}
       </div>
+      {actions && <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>}
     </div>
   );
 }

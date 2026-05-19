@@ -46,7 +46,7 @@ export default function AppLayout() {
       >
         <TopBar onMobileMenuClick={() => setMobileOpen(true)} />
         <ContextBar />
-        <main className="p-4 md:p-6 min-w-0 max-w-full">
+        <main className="p-4 md:p-6 lg:p-8 min-w-0 max-w-full">
           <Outlet />
         </main>
       </div>

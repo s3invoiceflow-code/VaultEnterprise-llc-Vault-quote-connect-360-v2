@@ -392,29 +392,55 @@ export default function Dashboard() {
   }
 
   const renderAdminView = () => (
-    <>
+    <div className="space-y-8">
+      {/* Workflow entry */}
       <WorkflowStartPanel />
+
+      {/* Quick actions bar */}
       <QuickActions />
-      <SystemControlMetrics metrics={dashboardMetrics} />
-      <SystemHealthStrip
-        metrics={{
-          exceptions: registry.systemSummary.exceptionCount,
-          censusIssues: registry.systemSummary.censusIssues,
-          stalledCases: stalledCasesCount,
-          healthy: healthyDomains,
-        }}
-      />
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <MetricCard label="Cases in Quoting" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} draft scenarios`} />
-        <MetricCard label="Open Enrollments" value={enrollmentOpen.length} icon={ClipboardCheck} trendLabel={`${pendingSignatures} signatures pending`} />
-        <MetricCard label="Overdue Tasks" value={overdueTasks.length} icon={AlertCircle} trend={overdueTasks.length > 0 ? "down" : undefined} trendLabel={overdueTasks.length > 0 ? "needs attention" : "on track"} />
-        <MetricCard label="Active Renewals" value={activeRenewals} icon={RefreshCw} trendLabel={`${dashboardMetrics.renewalOverdue} overdue`} />
-      </div>
+
+      {/* Primary KPI strip */}
+      <section>
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Performance Overview</p>
+        <SystemControlMetrics metrics={dashboardMetrics} />
+      </section>
+
+      {/* System health */}
+      <section>
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">System Health</p>
+        <SystemHealthStrip
+          metrics={{
+            exceptions: registry.systemSummary.exceptionCount,
+            censusIssues: registry.systemSummary.censusIssues,
+            stalledCases: stalledCasesCount,
+            healthy: healthyDomains,
+          }}
+        />
+      </section>
+
+      {/* Operational signals */}
+      <section>
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Operational Signals</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard label="Cases in Quoting" value={quotingCases.length} icon={FileText} trendLabel={`${draftQuotes} draft scenarios`} />
+          <MetricCard label="Open Enrollments" value={enrollmentOpen.length} icon={ClipboardCheck} trendLabel={`${pendingSignatures} signatures pending`} />
+          <MetricCard label="Overdue Tasks" value={overdueTasks.length} icon={AlertCircle} trend={overdueTasks.length > 0 ? "down" : undefined} trendLabel={overdueTasks.length > 0 ? "needs attention" : "on track"} />
+          <MetricCard label="Active Renewals" value={activeRenewals} icon={RefreshCw} trendLabel={`${dashboardMetrics.renewalOverdue} overdue`} />
+        </div>
+      </section>
+
+      {/* Action center — only shown when there are items */}
       <ActionCenterPanel actions={actionCenterItems} />
+
+      {/* Integration health */}
       <IntegrationStatusPanel items={integrationHealth} />
+
+      {/* Domain grid */}
       <DomainControlGrid domains={domainCards} />
+
+      {/* Alerts + audit */}
       <AlertsAndAuditFeed alerts={activeAlerts} feed={activityFeed} />
-    </>
+    </div>
   );
 
   const renderOperationsView = () => (

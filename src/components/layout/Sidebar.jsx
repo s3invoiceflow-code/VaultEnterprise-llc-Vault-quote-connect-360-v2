@@ -138,7 +138,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           {navGroups.map((group, gi) => (
             <div key={group.label}>
               {!collapsed && (
-                <p className="text-[9px] font-bold uppercase tracking-widest text-sidebar-foreground/30 px-3 mb-1.5">{group.label}</p>
+                <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-sidebar-foreground/25 px-3 mb-2">{group.label}</p>
               )}
               {collapsed && gi > 0 && <div className="border-t border-sidebar-border mb-2 mx-1" />}
               <div className="space-y-0.5">
