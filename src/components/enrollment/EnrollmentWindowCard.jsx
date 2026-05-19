@@ -153,6 +153,9 @@ export default function EnrollmentWindowCard({ enrollment }) {
           </div>
         </div>
 
+        {statusError && (
+          <p className="text-xs text-destructive bg-destructive/10 rounded-md px-3 py-1.5 mb-2">{statusError}</p>
+        )}
         {/* Participation Bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
