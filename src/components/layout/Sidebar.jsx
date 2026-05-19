@@ -121,25 +121,29 @@ export default function Sidebar({ collapsed, onToggle }) {
       >
         {/* Logo */}
         <div className={cn("flex items-center gap-2.5 px-4 h-16 border-b border-sidebar-border flex-shrink-0", collapsed && "justify-center")}>
-          <svg width="32" height="32" viewBox="0 0 200 200" className="flex-shrink-0">
-            {/* Circular arrows */}
-            <path d="M 100 40 A 60 60 0 0 1 152 52" stroke="#001f5c" strokeWidth="12" fill="none" strokeLinecap="round" />
-            <path d="M 160 60 L 152 52 L 160 50" stroke="#001f5c" strokeWidth="12" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <svg width="28" height="28" viewBox="0 0 100 100" className="flex-shrink-0" fill="none">
+            {/* Top arrow (dark navy) */}
+            <path d="M 50 15 Q 60 25 65 30" stroke="#001f5c" strokeWidth="8" strokeLinecap="round" />
+            <polygon points="65,30 72,22 68,35" fill="#001f5c" />
             
-            <path d="M 152 148 A 60 60 0 0 1 100 160" stroke="#0066ff" strokeWidth="12" fill="none" strokeLinecap="round" />
-            <path d="M 100 168 L 104 160 L 112 164" stroke="#0066ff" strokeWidth="12" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            {/* Right arrow (bright blue) */}
+            <path d="M 75 50 Q 70 60 65 70" stroke="#0066ff" strokeWidth="8" strokeLinecap="round" />
+            <polygon points="65,70 70,78 58,72" fill="#0066ff" />
             
-            <path d="M 48 100 A 60 60 0 0 1 52 48" stroke="#00cc66" strokeWidth="12" fill="none" strokeLinecap="round" />
+            {/* Bottom arc (bright blue) */}
+            <path d="M 50 85 Q 35 75 30 65" stroke="#0066ff" strokeWidth="8" strokeLinecap="round" />
             
-            {/* Document icon */}
-            <rect x="70" y="80" width="40" height="50" rx="3" stroke="#001f5c" strokeWidth="4" fill="none" />
-            <path d="M 100 80 L 110 90" stroke="#001f5c" strokeWidth="4" fill="none" />
-            <line x1="78" y1="100" x2="102" y2="100" stroke="#001f5c" strokeWidth="3" strokeLinecap="round" />
-            <line x1="78" y1="112" x2="102" y2="112" stroke="#001f5c" strokeWidth="3" strokeLinecap="round" />
+            {/* Left arc (green) */}
+            <path d="M 30 50 Q 35 35 45 25" stroke="#00cc66" strokeWidth="8" strokeLinecap="round" />
+            
+            {/* Document */}
+            <rect x="35" y="35" width="20" height="28" rx="2" stroke="#001f5c" strokeWidth="2.5" />
+            <line x1="40" y1="45" x2="50" y2="45" stroke="#001f5c" strokeWidth="1.5" />
+            <line x1="40" y1="52" x2="50" y2="52" stroke="#001f5c" strokeWidth="1.5" />
             
             {/* Checkmark circle */}
-            <circle cx="110" cy="130" r="14" stroke="#00cc66" strokeWidth="3" fill="none" />
-            <path d="M 106 130 L 109 133 L 114 128" stroke="#00cc66" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="56" cy="63" r="8" stroke="#00cc66" strokeWidth="2" />
+            <path d="M 53 63 L 55 65 L 58 61" stroke="#00cc66" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           {!collapsed && (
             <div className="overflow-hidden">
