@@ -53,6 +53,9 @@ function EditWindowModal({ window: win, open, onClose }) {
       toast({ title: "Window updated" });
       onClose();
     },
+    onError: (err) => {
+      toast({ title: "Update failed", description: err?.message || "Failed to update window.", variant: "destructive" });
+    },
   });
 
   return (
@@ -85,7 +88,7 @@ function EditWindowModal({ window: win, open, onClose }) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose} disabled={save.isPending}>Cancel</Button>
           <Button onClick={() => save.mutate()} disabled={save.isPending}>{save.isPending ? "Saving..." : "Save Changes"}</Button>
         </DialogFooter>
       </DialogContent>
@@ -126,6 +129,9 @@ export default function EnrollmentWindowsTab({ windows, enrollments, cases, isLo
       queryClient.invalidateQueries({ queryKey: ["enrollments-all"] });
       toast({ title: "Status updated" });
     },
+    onError: (err) => {
+      toast({ title: "Status update failed", description: err?.message || "Please try again.", variant: "destructive" });
+    },
   });
 
   const deleteWindow = useMutation({
@@ -133,6 +139,9 @@ export default function EnrollmentWindowsTab({ windows, enrollments, cases, isLo
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["enrollments-all"] });
       toast({ title: "Window deleted" });
+    },
+    onError: (err) => {
+      toast({ title: "Delete failed", description: err?.message || "Please try again.", variant: "destructive" });
     },
   });
 

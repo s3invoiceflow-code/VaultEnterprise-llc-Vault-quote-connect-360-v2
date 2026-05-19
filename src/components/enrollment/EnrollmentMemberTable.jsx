@@ -80,6 +80,9 @@ export default function EnrollmentMemberTable({ enrollmentWindowId, caseId }) {
       invited_at: status === "invited" ? new Date().toISOString() : undefined,
     }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["enrollment-members", enrollmentWindowId] }),
+    onError: (err) => {
+      toast({ title: "Status update failed", description: err?.message || "Please try again.", variant: "destructive" });
+    },
   });
 
   const filtered = members.filter(m => {

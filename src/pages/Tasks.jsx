@@ -19,6 +19,7 @@ import PageHeader from "@/components/shared/PageHeader";
 import StatusBadge from "@/components/shared/StatusBadge";
 import EmptyState from "@/components/shared/EmptyState";
 import TaskModal from "@/components/cases/TaskModal";
+import { useToast } from "@/components/ui/use-toast";
 import { format, isToday, isTomorrow, isPast, isThisWeek } from "date-fns";
 
 const PRIORITY_ORDER = { urgent: 0, high: 1, normal: 2, low: 3 };
@@ -227,6 +228,8 @@ export default function Tasks() {
     queryFn: () => base44.entities.BenefitCase.list("-created_date", 100),
   });
 
+  const { toast } = useToast();
+
   const toggleStatus = useMutation({
     mutationFn: (task) => {
       const next = task.status === "completed" ? "pending" : task.status === "pending" ? "in_progress" : "completed";
@@ -239,6 +242,9 @@ export default function Tasks() {
       queryClient.invalidateQueries({ queryKey: ["tasks-all"] });
       queryClient.invalidateQueries({ queryKey: ["tasks-pending"] });
     },
+    onError: (err) => {
+      toast({ title: "Status update failed", description: err?.message || "Please try again.", variant: "destructive" });
+    },
   });
 
   const deleteTask = useMutation({
@@ -246,6 +252,9 @@ export default function Tasks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks-all"] });
       queryClient.invalidateQueries({ queryKey: ["tasks-pending"] });
+    },
+    onError: (err) => {
+      toast({ title: "Delete failed", description: err?.message || "Please try again.", variant: "destructive" });
     },
   });
 
@@ -257,6 +266,10 @@ export default function Tasks() {
       queryClient.invalidateQueries({ queryKey: ["tasks-all"] });
       setSelected([]);
     },
+    onError: (err) => {
+      toast({ title: "Bulk complete failed", description: err?.message || "Some tasks may not have updated.", variant: "destructive" });
+      queryClient.invalidateQueries({ queryKey: ["tasks-all"] });
+    },
   });
 
   const bulkDelete = useMutation({
@@ -264,6 +277,10 @@ export default function Tasks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks-all"] });
       setSelected([]);
+    },
+    onError: (err) => {
+      toast({ title: "Bulk delete failed", description: err?.message || "Some tasks may not have been deleted.", variant: "destructive" });
+      queryClient.invalidateQueries({ queryKey: ["tasks-all"] });
     },
   });
 
