@@ -52,7 +52,7 @@ export default function AppLayout() {
       </div>
 
       {!location.pathname.match(/^\/cases\/[^/]+$/) && <AIAssistant />}
-      <HelpAIAssistant />
+      {location.pathname.startsWith("/help") && <HelpAIAssistant />}
     </div>
   );
 }

@@ -27,7 +27,7 @@ import {
 export const primaryWorkflowItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard, description: "Start here" },
   { path: "/mga/command", label: "MGA Command", icon: Building2, description: "Master General Agent operations", roles: ['mga_admin','mga_manager','mga_user','mga_read_only','platform_super_admin','admin'] },
-  { path: "/employers", label: "Broker / Agency", icon: Building2, description: "Manage employer accounts" },
+  { path: "/employers", label: "Employers", icon: Building2, description: "Manage employer accounts" },
   { path: "/cases", label: "Cases", icon: Briefcase, description: "Run end-to-end workflows" },
   { path: "/census", label: "Census & Employees", icon: Users, description: "Upload and validate employee data" },
   { path: "/quotes", label: "Quotes", icon: FileText, description: "Build scenarios and pricing" },
@@ -43,8 +43,8 @@ export const referenceItems = [
   { path: "/policymatch", label: "PolicyMatch AI", icon: Brain, description: "Compare policy options" },
   { path: "/tasks", label: "Tasks", icon: AlertCircle, description: "Track operational work" },
   { path: "/exceptions", label: "Issues", icon: TriangleAlert, description: "Resolve blockers" },
-  { path: "/integration-infra", label: "Integrations", icon: ServerCog, description: "Integration operations" },
-  { path: "/aca-library", label: "ACA Library", icon: Scale, description: "Compliance reference" },
+  { path: "/integration-infra", label: "Integrations", icon: ServerCog, description: "Integration operations", roles: ['admin', 'platform_super_admin'] },
+  { path: "/aca-library", label: "ACA Library", icon: Scale, description: "Compliance reference", roles: ['admin', 'platform_super_admin'] },
 ];
 
 export const portalItems = [
@@ -55,7 +55,7 @@ export const portalItems = [
 
 export const supportItems = [
   { path: "/help", label: "Help Center", icon: HelpCircle, description: "Guides and help" },
-  { path: "/help-admin", label: "Help Console", icon: ShieldCheck, description: "Admin help tools" },
+  { path: "/help-admin", label: "Help Console", icon: ShieldCheck, description: "Admin help tools", roles: ['admin', 'platform_super_admin'] },
   { path: "/settings", label: "Settings", icon: Settings, description: "Platform setup" },
 ];
 

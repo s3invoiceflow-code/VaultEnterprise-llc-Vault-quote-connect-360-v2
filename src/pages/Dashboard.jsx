@@ -39,7 +39,8 @@ import { useAuth } from "@/lib/AuthContext";
 export default function Dashboard() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin" || user?.role === "platform_super_admin";
-  const [roleView, setRoleView] = useState("admin");
+  const defaultView = user?.role === "broker" ? "broker" : user?.role === "employer" ? "employer" : "admin";
+  const [roleView, setRoleView] = useState(defaultView);
 
   const STALE = 60_000; // 1 minute — prevents refetch storms on navigation
 
@@ -353,7 +354,7 @@ export default function Dashboard() {
       key: "supporting",
       label: "Support Systems",
       description: "Employers, proposals, exceptions, documents, and admin workflows",
-      href: "/settings",
+      href: "/exceptions",
       icon: Settings,
       stats: [
         { label: "Employers", value: employers.length },
@@ -445,7 +446,6 @@ export default function Dashboard() {
       <IntegrationStatusPanel items={integrationHealth} />
       <DomainControlGrid domains={domainCards} />
       <AlertsAndAuditFeed alerts={activeAlerts} feed={activityFeed} />
-      <RoutedPagesDirectory pages={routedPages} />
     </>
   );
 

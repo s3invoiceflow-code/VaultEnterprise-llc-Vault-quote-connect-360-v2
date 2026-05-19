@@ -6,7 +6,7 @@ import MetricCard from "@/components/shared/MetricCard";
 export default function SystemControlMetrics({ metrics }) {
   const items = [
     { label: "Eligible Members", value: metrics.totalEligibleMembers, trendLabel: `${metrics.totalEligible} window eligible`, icon: Users, href: "/employee-management" },
-    { label: "Enrollment Completion", value: `${metrics.enrollmentCompletion}%`, trendLabel: `${metrics.enrolledEmployees} of ${metrics.totalEligibleMembers} enrolled`, icon: ClipboardCheck, href: "/enrollment" },
+    { label: "Enrollment Completion", value: `${metrics.enrollmentCompletion}%`, trendLabel: metrics.totalEligibleMembers === 0 ? "No eligible members" : `${metrics.enrolledEmployees} of ${metrics.totalEligibleMembers} enrolled`, icon: ClipboardCheck, href: "/enrollment" },
     { label: "Active Quote Pipeline", value: metrics.quotePipeline, trendLabel: `${metrics.quoteCompleted} completed`, icon: FileText, href: "/quotes" },
     { label: "Renewal Pipeline", value: metrics.renewalPipeline, trendLabel: `${metrics.renewalOverdue} overdue`, icon: RefreshCw, href: "/renewals" },
     { label: "Open Cases", value: metrics.openCases, trendLabel: `${metrics.totalCases} total`, icon: Briefcase, href: "/cases" },
