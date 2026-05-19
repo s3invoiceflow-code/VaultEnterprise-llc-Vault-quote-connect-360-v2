@@ -121,30 +121,24 @@ export default function Sidebar({ collapsed, onToggle }) {
       >
         {/* Logo */}
         <div className={cn("flex items-center gap-2.5 px-4 h-16 border-b border-sidebar-border flex-shrink-0", collapsed && "justify-center")}>
-          <svg width="28" height="28" viewBox="0 0 100 100" className="flex-shrink-0" fill="none">
-            {/* Top arrow (dark navy) */}
-            <path d="M 50 15 Q 60 25 65 30" stroke="#001f5c" strokeWidth="8" strokeLinecap="round" />
-            <polygon points="65,30 72,22 68,35" fill="#001f5c" />
-            
-            {/* Right arrow (bright blue) */}
-            <path d="M 75 50 Q 70 60 65 70" stroke="#0066ff" strokeWidth="8" strokeLinecap="round" />
-            <polygon points="65,70 70,78 58,72" fill="#0066ff" />
-            
-            {/* Bottom arc (bright blue) */}
-            <path d="M 50 85 Q 35 75 30 65" stroke="#0066ff" strokeWidth="8" strokeLinecap="round" />
-            
-            {/* Left arc (green) */}
-            <path d="M 30 50 Q 35 35 45 25" stroke="#00cc66" strokeWidth="8" strokeLinecap="round" />
-            
-            {/* Document */}
-            <rect x="35" y="35" width="20" height="28" rx="2" stroke="#001f5c" strokeWidth="2.5" />
-            <line x1="40" y1="45" x2="50" y2="45" stroke="#001f5c" strokeWidth="1.5" />
-            <line x1="40" y1="52" x2="50" y2="52" stroke="#001f5c" strokeWidth="1.5" />
-            
-            {/* Checkmark circle */}
-            <circle cx="56" cy="63" r="8" stroke="#00cc66" strokeWidth="2" />
-            <path d="M 53 63 L 55 65 L 58 61" stroke="#00cc66" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center flex-shrink-0 shadow-lg">
+            <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
+              {/* Circular arrows - bright colors */}
+              <path d="M 50 20 A 30 30 0 0 1 80 50" stroke="#3b82f6" strokeWidth="10" strokeLinecap="round" fill="none" />
+              <path d="M 80 50 A 30 30 0 0 1 50 80" stroke="#10b981" strokeWidth="10" strokeLinecap="round" fill="none" />
+              <path d="M 50 80 A 30 30 0 0 1 20 50" stroke="#8b5cf6" strokeWidth="10" strokeLinecap="round" fill="none" />
+              <path d="M 20 50 A 30 30 0 0 1 50 20" stroke="#f59e0b" strokeWidth="10" strokeLinecap="round" fill="none" />
+              
+              {/* Document icon */}
+              <rect x="38" y="35" width="24" height="30" rx="2" stroke="#1e3a5f" strokeWidth="3" fill="white" />
+              <line x1="43" y1="45" x2="57" y2="45" stroke="#1e3a5f" strokeWidth="2" strokeLinecap="round" />
+              <line x1="43" y1="53" x2="57" y2="53" stroke="#1e3a5f" strokeWidth="2" strokeLinecap="round" />
+              
+              {/* Checkmark */}
+              <circle cx="62" cy="65" r="10" stroke="#10b981" strokeWidth="3" fill="white" />
+              <path d="M 58 65 L 61 68 L 66 62" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            </svg>
+          </div>
           {!collapsed && (
             <div className="overflow-hidden">
               <h1 className="text-sm font-bold text-sidebar-foreground leading-tight truncate">Connect Quote</h1>
