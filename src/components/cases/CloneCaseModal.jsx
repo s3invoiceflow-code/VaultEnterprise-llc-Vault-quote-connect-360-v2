@@ -14,9 +14,11 @@ export default function CloneCaseModal({ isOpen, caseData, onClose }) {
   const [cloneTasks, setCloneTasks] = useState(false);
   const [cloneDocs, setCloneDocs] = useState(false);
   const [notes, setNotes] = useState("");
+  const [error, setError] = useState(null);
 
   const handleClone = async () => {
     setLoading(true);
+    setError(null);
     try {
       // Create new case
       const newCase = await base44.entities.BenefitCase.create({
@@ -68,6 +70,8 @@ export default function CloneCaseModal({ isOpen, caseData, onClose }) {
 
       onClose();
       navigate(`/cases/${newCase.id}`);
+    } catch (err) {
+      setError(err?.message || "Clone failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -108,8 +112,11 @@ export default function CloneCaseModal({ isOpen, caseData, onClose }) {
             />
           </div>
         </div>
+        {error && (
+          <p className="text-xs text-destructive bg-destructive/10 rounded-md px-3 py-2">{error}</p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button onClick={handleClone} disabled={loading}>
             {loading && <Loader className="w-4 h-4 mr-2 animate-spin" />}
             Clone Case

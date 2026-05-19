@@ -2,7 +2,7 @@ import React from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { getStageRequirements } from "@/components/cases/caseWorkflow";
 
-export default function StageAdvanceModal({ caseData, nextStage, nextStageLabel, open, onConfirm, onClose, workflowContext }) {
+export default function StageAdvanceModal({ caseData, nextStage, nextStageLabel, open, onConfirm, onClose, workflowContext, isPending }) {
   const requirements = getStageRequirements(nextStage, workflowContext || {});
   const blockedItems = requirements.filter((item) => !item.met);
   const blocked = blockedItems.length > 0;
@@ -21,9 +21,11 @@ export default function StageAdvanceModal({ caseData, nextStage, nextStageLabel,
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           {!blocked && (
-            <AlertDialogAction onClick={onConfirm}>Confirm</AlertDialogAction>
+            <AlertDialogAction onClick={onConfirm} disabled={isPending}>
+              {isPending ? "Advancing…" : "Confirm"}
+            </AlertDialogAction>
           )}
         </AlertDialogFooter>
       </AlertDialogContent>

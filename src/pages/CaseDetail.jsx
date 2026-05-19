@@ -464,6 +464,7 @@ export default function CaseDetail() {
           open={showAdvance}
           onConfirm={() => advanceStageMutation.mutate(nextStage)}
           onClose={() => setShowAdvance(false)}
+          isPending={advanceStageMutation.isPending}
         />
       )}
       {showTxQuote && (

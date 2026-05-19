@@ -145,7 +145,7 @@ function TaskRow({ task, onEdit, onDelete, onStatusChange, selected, onSelect })
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(task)}>
             <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDelete(task.id)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { if (window.confirm("Delete this task?")) onDelete(task.id); }}>
             <Trash2 className="w-3.5 h-3.5 text-destructive" />
           </Button>
         </div>

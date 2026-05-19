@@ -33,6 +33,8 @@ export default function TaskModal({ caseId, employerName, task, open, onClose, c
     if (c) set("employer_name", c.employer_name || "");
   };
 
+  const [saveError, setSaveError] = useState(null);
+
   const save = useMutation({
     mutationFn: () => {
       const payload = { ...form };
@@ -45,7 +47,11 @@ export default function TaskModal({ caseId, employerName, task, open, onClose, c
       queryClient.invalidateQueries({ queryKey: ["case-tasks", form.case_id] });
       queryClient.invalidateQueries({ queryKey: ["tasks-all"] });
       queryClient.invalidateQueries({ queryKey: ["tasks-pending"] });
+      setSaveError(null);
       onClose();
+    },
+    onError: (err) => {
+      setSaveError(err?.message || "Failed to save task. Please try again.");
     },
   });
 
@@ -147,8 +153,11 @@ export default function TaskModal({ caseId, employerName, task, open, onClose, c
           )}
         </div>
 
+        {saveError && (
+          <p className="text-xs text-destructive bg-destructive/10 rounded-md px-3 py-2 mb-1">{saveError}</p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose} disabled={save.isPending}>Cancel</Button>
           <Button onClick={() => save.mutate()} disabled={!form.title || save.isPending}>
             {save.isPending ? "Saving..." : isEdit ? "Save Changes" : "Create Task"}
           </Button>

@@ -22,6 +22,7 @@ export default function CreateRenewalModal({ open, onClose }) {
   const [renewalDate, setRenewalDate] = useState("");
   const [currentPremium, setCurrentPremium] = useState("");
   const [errors, setErrors] = useState({});
+  const [mutationError, setMutationError] = useState(null);
 
   const { data: activeCases = [] } = useQuery({
     queryKey: ["active-cases-for-renewal"],
@@ -78,7 +79,11 @@ export default function CreateRenewalModal({ open, onClose }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["renewals-all"] });
+      setMutationError(null);
       handleClose();
+    },
+    onError: (err) => {
+      setMutationError(err?.message || "Failed to create renewal. Please try again.");
     },
   });
 
@@ -87,6 +92,7 @@ export default function CreateRenewalModal({ open, onClose }) {
     setRenewalDate("");
     setCurrentPremium("");
     setErrors({});
+    setMutationError(null);
     onClose();
   };
 
@@ -170,8 +176,11 @@ export default function CreateRenewalModal({ open, onClose }) {
             <span>A new renewal cycle for {selectedCase?.employer_name || "this case"} will be created and marked as "Pre-Renewal".</span>
           </div>
 
+          {mutationError && (
+            <p className="text-xs text-destructive bg-destructive/10 rounded-md px-3 py-2">{mutationError}</p>
+          )}
           <div className="flex gap-2 pt-2">
-            <Button variant="outline" className="flex-1" onClick={handleClose}>
+            <Button variant="outline" className="flex-1" onClick={handleClose} disabled={create.isPending}>
               Cancel
             </Button>
             <Button className="flex-1" onClick={handleSubmit} disabled={create.isPending || eligibleCases.length === 0}>

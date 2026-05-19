@@ -21,6 +21,7 @@ export default function CaseCloseModal({ caseData, open, onClose }) {
   const queryClient = useQueryClient();
   const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
+  const [closeError, setCloseError] = useState(null);
 
   const close = useMutation({
     mutationFn: () => base44.entities.BenefitCase.update(caseData.id, {
@@ -32,7 +33,11 @@ export default function CaseCloseModal({ caseData, open, onClose }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["case", caseData.id] });
       queryClient.invalidateQueries({ queryKey: ["cases"] });
+      setCloseError(null);
       onClose();
+    },
+    onError: (err) => {
+      setCloseError(err?.message || "Failed to close case. Please try again.");
     },
   });
 
@@ -58,8 +63,11 @@ export default function CaseCloseModal({ caseData, open, onClose }) {
             <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="mt-1.5" placeholder="Any final notes..." />
           </div>
         </div>
+        {closeError && (
+          <p className="text-xs text-destructive bg-destructive/10 rounded-md px-3 py-2 mb-1">{closeError}</p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose} disabled={close.isPending}>Cancel</Button>
           <Button variant="destructive" onClick={() => close.mutate()} disabled={!reason || close.isPending}>
             {close.isPending ? "Closing..." : "Close Case"}
           </Button>

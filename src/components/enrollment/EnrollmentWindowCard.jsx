@@ -41,6 +41,8 @@ export default function EnrollmentWindowCard({ enrollment }) {
   const pct = Math.round((enrolled / total) * 100);
   const participationColor = pct >= 75 ? "text-green-600" : pct >= 50 ? "text-amber-600" : "text-destructive";
 
+  const [statusError, setStatusError] = useState(null);
+
   const updateStatus = useMutation({
     mutationFn: (status) => base44.entities.EnrollmentWindow.update(enrollment.id, {
       status,
@@ -49,6 +51,10 @@ export default function EnrollmentWindowCard({ enrollment }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["enrollments-all"] });
       queryClient.invalidateQueries({ queryKey: ["enrollments"] });
+      setStatusError(null);
+    },
+    onError: (err) => {
+      setStatusError(err?.message || "Status update failed. Please try again.");
     },
   });
 

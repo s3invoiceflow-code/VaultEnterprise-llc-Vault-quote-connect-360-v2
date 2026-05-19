@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function CaseEditModal({ caseData, open, onClose }) {
   const queryClient = useQueryClient();
+  const [saveError, setSaveError] = useState(null);
   const [form, setForm] = useState({
     employer_name: caseData?.employer_name || "",
     effective_date: caseData?.effective_date || "",
@@ -28,7 +29,11 @@ export default function CaseEditModal({ caseData, open, onClose }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["case", caseData.id] });
       queryClient.invalidateQueries({ queryKey: ["cases"] });
+      setSaveError(null);
       onClose();
+    },
+    onError: (err) => {
+      setSaveError(err?.message || "Failed to save changes. Please try again.");
     },
   });
 
@@ -82,8 +87,11 @@ export default function CaseEditModal({ caseData, open, onClose }) {
             <Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={3} className="mt-1.5" />
           </div>
         </div>
+        {saveError && (
+          <p className="text-xs text-destructive bg-destructive/10 rounded-md px-3 py-2 mb-1">{saveError}</p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose} disabled={update.isPending}>Cancel</Button>
           <Button onClick={() => update.mutate()} disabled={update.isPending}>
             {update.isPending ? "Saving..." : "Save Changes"}
           </Button>

@@ -58,6 +58,8 @@ export default function CreateEnrollmentModal({ open, onClose }) {
     renewals,
   });
 
+  const [mutationError, setMutationError] = useState(null);
+
   const create = useMutation({
     mutationFn: async () => {
       const enrollment = await base44.entities.EnrollmentWindow.create(
@@ -78,12 +80,17 @@ export default function CreateEnrollmentModal({ open, onClose }) {
       queryClient.invalidateQueries({ queryKey: ["enrollments-all"] });
       queryClient.invalidateQueries({ queryKey: ["enrollments"] });
       queryClient.invalidateQueries({ queryKey: ["enrollments-active-count"] });
+      setMutationError(null);
       onClose();
+    },
+    onError: (err) => {
+      setMutationError(err?.message || "Failed to create enrollment window. Please try again.");
     },
   });
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
-  const isValid = form.case_id && form.start_date && form.end_date && conversion.isValid;
+  // Allow creation even without an approved scenario — conversion.isValid is informational only
+  const isValid = form.case_id && form.start_date && form.end_date;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -158,8 +165,11 @@ export default function CreateEnrollmentModal({ open, onClose }) {
             </Select>
           </div>
         </div>
+        {mutationError && (
+          <p className="text-xs text-destructive bg-destructive/10 rounded-md px-3 py-2 mb-1">{mutationError}</p>
+        )}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose} disabled={create.isPending}>Cancel</Button>
           <Button onClick={() => create.mutate()} disabled={!isValid || create.isPending}>
             {create.isPending ? "Creating..." : "Create Enrollment Window"}
           </Button>
