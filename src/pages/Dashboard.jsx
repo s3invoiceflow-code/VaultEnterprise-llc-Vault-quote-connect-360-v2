@@ -23,7 +23,6 @@ import QuickActions from "@/components/dashboard/QuickActions";
 import CensusGapAlert from "@/components/dashboard/CensusGapAlert";
 import SystemHealthStrip from "@/components/dashboard/SystemHealthStrip";
 import DomainControlGrid from "@/components/dashboard/DomainControlGrid";
-import RoutedPagesDirectory from "@/components/dashboard/RoutedPagesDirectory";
 import WorkflowBottlenecksPanel from "@/components/dashboard/WorkflowBottlenecksPanel";
 import ActionCenterPanel from "@/components/dashboard/ActionCenterPanel";
 import WorkflowStartPanel from "@/components/dashboard/WorkflowStartPanel";
@@ -42,84 +41,90 @@ export default function Dashboard() {
   const defaultView = user?.role === "broker" ? "broker" : user?.role === "employer" ? "employer" : "admin";
   const [roleView, setRoleView] = useState(defaultView);
 
-  const STALE = 60_000; // 1 minute — prevents refetch storms on navigation
+  const STALE = 5 * 60_000;  // 5 minutes — aggressive cache to prevent refetch storms
+  const GC    = 10 * 60_000; // 10 minutes — keep cache alive across tab switches
+  const ready = !!user;      // gate: don't fire before auth context is available
 
+  // ── Tier 1: Primary KPI queries (7) — fire together once auth is ready ──
   const { data: cases = [], isLoading } = useQuery({
     queryKey: ["cases"],
     queryFn: () => base44.entities.BenefitCase.list("-created_date", 200),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: ready,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks-pending"],
     queryFn: () => base44.entities.CaseTask.filter({ status: "pending" }, "-created_date", 200),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: ready,
   });
 
   const { data: enrollments = [] } = useQuery({
     queryKey: ["enrollments"],
     queryFn: () => base44.entities.EnrollmentWindow.list("-created_date", 100),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: ready,
   });
 
   const { data: exceptions = [] } = useQuery({
     queryKey: ["exceptions"],
     queryFn: () => base44.entities.ExceptionItem.list("-created_date", 50),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: ready,
   });
 
   const { data: censusVersions = [] } = useQuery({
     queryKey: ["dashboard-census-versions"],
     queryFn: () => base44.entities.CensusVersion.list("-created_date", 200),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: ready,
   });
 
   const { data: quoteScenarios = [] } = useQuery({
     queryKey: ["dashboard-quote-scenarios"],
     queryFn: () => base44.entities.QuoteScenario.list("-created_date", 200),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: ready,
   });
 
   const { data: renewals = [] } = useQuery({
     queryKey: ["dashboard-renewals"],
     queryFn: () => base44.entities.RenewalCycle.list("-created_date", 200),
-    staleTime: STALE,
-  });
-
-  const { data: documents = [] } = useQuery({
-    queryKey: ["dashboard-documents"],
-    queryFn: () => base44.entities.Document.list("-created_date", 200),
-    staleTime: STALE,
-  });
-
-  const { data: employers = [] } = useQuery({
-    queryKey: ["dashboard-employers"],
-    queryFn: () => base44.entities.EmployerGroup.list("-created_date", 200),
-    staleTime: STALE,
-  });
-
-  const { data: proposals = [] } = useQuery({
-    queryKey: ["dashboard-proposals"],
-    queryFn: () => base44.entities.Proposal.list("-created_date", 200),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: ready,
   });
 
   const { data: employeeEnrollments = [] } = useQuery({
     queryKey: ["dashboard-employee-enrollments"],
     queryFn: () => base44.entities.EmployeeEnrollment.list("-created_date", 500),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: ready,
+  });
+
+  // ── Tier 2: Secondary queries (5) — deferred until primary cases data is loaded ──
+  const primaryLoaded = ready && !isLoading && cases.length >= 0;
+
+  const { data: documents = [] } = useQuery({
+    queryKey: ["dashboard-documents"],
+    queryFn: () => base44.entities.Document.list("-created_date", 200),
+    staleTime: STALE, gcTime: GC, enabled: primaryLoaded,
+  });
+
+  const { data: employers = [] } = useQuery({
+    queryKey: ["dashboard-employers"],
+    queryFn: () => base44.entities.EmployerGroup.list("-created_date", 200),
+    staleTime: STALE, gcTime: GC, enabled: primaryLoaded,
+  });
+
+  const { data: proposals = [] } = useQuery({
+    queryKey: ["dashboard-proposals"],
+    queryFn: () => base44.entities.Proposal.list("-created_date", 200),
+    staleTime: STALE, gcTime: GC, enabled: primaryLoaded,
   });
 
   const { data: activityLogs = [] } = useQuery({
     queryKey: ["dashboard-activity-logs"],
     queryFn: () => base44.entities.ActivityLog.list("-created_date", 50),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: primaryLoaded,
   });
 
   const { data: censusMembers = [] } = useQuery({
     queryKey: ["dashboard-census-members"],
     queryFn: () => base44.entities.CensusMember.filter({ is_eligible: true }, "-created_date", 500),
-    staleTime: STALE,
+    staleTime: STALE, gcTime: GC, enabled: primaryLoaded,
   });
 
   const activeCases = useMemo(() => cases.filter((c) => !["closed", "renewed"].includes(c.stage)), [cases]);
@@ -369,43 +374,6 @@ export default function Dashboard() {
       ],
     },
   ], [activeCases.length, stalledCasesCount, cases, quotingCases.length, censusVersions.length, censusIssues, quoteScenarios, draftQuotes, enrollmentOpen.length, employeeEnrollments.length, pendingSignatures, activeRenewals, renewals, employers.length, documents.length, proposals.length, openExceptions, enrollments.length]);
-
-  const routedPages = useMemo(() => {
-    const base = [
-      { label: "Dashboard", href: "/" },
-      { label: "Cases", href: "/cases" },
-      { label: "New Case", href: "/cases/new" },
-      { label: "Census", href: "/census" },
-      { label: "Quotes", href: "/quotes" },
-      { label: "Enrollment", href: "/enrollment" },
-      { label: "Renewals", href: "/renewals" },
-      { label: "Tasks", href: "/tasks" },
-      { label: "Employers", href: "/employers" },
-      { label: "Plans", href: "/plans" },
-      { label: "Proposals", href: "/proposals" },
-      { label: "Exceptions", href: "/exceptions" },
-      { label: "Contributions", href: "/contributions" },
-      { label: "Employee Portal", href: "/employee-portal" },
-      { label: "Employee Management", href: "/employee-management" },
-      { label: "Employer Portal", href: "/employer-portal" },
-      { label: "PolicyMatch", href: "/policymatch" },
-      { label: "Settings", href: "/settings" },
-      { label: "Help", href: "/help" },
-      { label: "ACA Library", href: "/aca-library" },
-    ];
-    if (isAdmin) {
-      base.push(
-        { label: "Integration Infra", href: "/integration-infra" },
-        { label: "Help Admin", href: "/help-admin" },
-        { label: "Help Dashboard", href: "/help-dashboard" },
-        { label: "Help Coverage", href: "/help-coverage" },
-        { label: "Help Analytics", href: "/help-analytics" },
-        { label: "Help Targets", href: "/help-target-registry" },
-        { label: "Help Manuals", href: "/help-manual-manager" },
-      );
-    }
-    return base;
-  }, [isAdmin]);
 
   if (isLoading) return <DashboardSkeleton />;
 
